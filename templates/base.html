@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>МШП Ответы</title>
+</head>
+<body>
+<nav class="navbar">
+      <div class="nav-container">
+        <a class="navbar-brand" href="/">MSHP Answers</a>
+        <ul class="nav-menu">
+          {% for item in menu %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{item.1}}">{{item.0}}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </nav>
+{% block content %} {% endblock %}
+</body>
+</html>
