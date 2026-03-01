@@ -8,7 +8,7 @@ def general_context(request):
             ["Задать вопрос", "/create_question"],
         ]
     }
-    if request.user.is_authenticated:
+    if not request.user.is_authenticated:
         context['menu'].append(['Профиль', '/accounts/profile'])
         context['menu'].append(['Logout', '/accounts/logout'])
     else:
@@ -16,8 +16,6 @@ def general_context(request):
     return context
 
 # Create your views here.
-
-
 def main(request):
     #questions = Question.objects.filter(id=id).first()
     context = {
@@ -29,3 +27,14 @@ def main(request):
 
 def calculator(request):
     return render(request, 'calc.html', general_context(request))
+
+
+def profile(request):
+    """ показывает страницу профиля с именем пользователя"""
+    user = request.user
+    context = {
+        'user': user,
+    }
+    context.update(general_context(request))
+    return render(request, "profile.html", context)
+

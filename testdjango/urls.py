@@ -17,9 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from core.views import main, calculator
+from django.urls import path, include
+import core.views as cv
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', main),
-    path('calculator/', calculator)
+    path('calculator/', calculator),
+    path('accounts/profile', cv.profile),
 ]
+
