@@ -9,11 +9,11 @@ def general_context(request):
             ["Задать вопрос", "/create_question"],
         ]
     }
-    if not request.user.is_authenticated:
+    if request.user.is_authenticated:
         context['menu'].append(['Профиль', '/accounts/profile'])
-        context['menu'].append(['Logout', '/accounts/logout'])
+        context['menu'].append(['Выйти', '/'])
     else:
-        context['menu'].append(['Логин', '/accounts/login'])
+        context['menu'].append(['Войти', '/accounts/login'])
     return context
 
 
@@ -33,4 +33,5 @@ def profile(request):
     }
     context.update(general_context(request))
     return render(request, "profile.html", context)
+
 
