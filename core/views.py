@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from core.models import Question
 
 def general_context(request):
     """ Создает общий контекст """
@@ -17,9 +17,9 @@ def general_context(request):
 
 # Create your views here.
 def main(request):
-    #questions = Question.objects.filter(id=id).first()
+    questions = Question.objects.all()[:10]
     context = {
-    #    'questions': questions
+        'questions': questions
     }
     context.update(general_context(request))
     return render(request, 'index.html', context)
