@@ -11,5 +11,13 @@
         <li>Go</li>
    </ul>
 
-   <img src="https://n1s1.hsmedia.ru/d4/16/bd/d416bd8e76cd3118687faed52ced6da7/656x438_1_d6b619da8cd821ab902b70b13d2d82cf@1280x853_0xUdjxnRdp_3921157980094374431.jpg.webp">
+    <ul>
+    {% for question in questions %}
+        <li>
+            <a href="/question/{{question.id}}"><h2>{{question.name}}></h2></a>
+            <label></label>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
 {% endblock %}

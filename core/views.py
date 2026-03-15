@@ -16,8 +16,16 @@ def general_context(request):
     return context
 
 # Create your views here.
+
+
 def main(request):
-    return render(request, 'index.html', general_context(request))
+    #questions = Question.objects.filter(id=id).first()
+    context = {
+    #    'questions': questions
+    }
+    context.update(general_context(request))
+    return render(request, 'index.html', context)
+
 
 def calculator(request):
     return render(request, 'calc.html', general_context(request))
