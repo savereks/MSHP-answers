@@ -41,6 +41,8 @@ class Vote(models.Model):
             ['user', 'question'],
             ['user', 'answer']
         ]
+
+
     def __str__(self):
         return self.user.username
 
