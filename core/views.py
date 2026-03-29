@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from core.models import Question
+from core.models import Question, ProfileImage
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
-from .forms import LoginForm
+from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, UserRegistrationForm
 
 
@@ -16,9 +16,8 @@ def general_context(request):
     }
     if request.user.is_authenticated:
         context['menu'].append(['Профиль', '/accounts/profile/'])
-        context['menu'].append(['Выйти', '/accounts/logout'])
     else:
-        context['menu'].append(['Войти', '/accounts/login'])
+        context['menu'].append(['Войти', '/accounts/login/'])
     return context
 
 # Create your views here.
@@ -35,11 +34,15 @@ def calculator(request):
     return render(request, 'calc.html', general_context(request))
 
 
+@login_required
 def profile(request):
     """ показывает страницу профиля с именем пользователя"""
     user = request.user
+    profile_image_obj = ProfileImage.objects.filter(user_id=user.id).first()
+    profile_pic_url = profile_image_obj.file if profile_image_obj else None
     context = {
         'user': user,
+        'profile_pic': profile_pic_url,
     }
     context.update(general_context(request))
     return render(request, "profile.html", context)
@@ -54,7 +57,7 @@ def user_login(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponse('Authenticated successfully')
+                    return redirect('/accounts/profile/')
                 else:
                     return HttpResponse('Disabled account')
             else:
@@ -64,7 +67,7 @@ def user_login(request):
     context = {
         'form': form
     }
-    return render(request, 'account/login.html', context)
+    return render(request, 'registration/login.html', context)
 
 
 def register(request):
@@ -82,3 +85,15 @@ def register(request):
         user_form = UserRegistrationForm()
     context = {'user_form': user_form}
     return render(request, 'account/register.html', context)
+
+
+def my_questions(request):
+    user = request.user
+    # TODO: запрос, который подгружает вопросы этого пользователя
+    user_questions = []
+    context = {
+        'user': user,
+        'questions': user_questions
+    }
+    context.update(general_context(request))
+    return render(request, 'my-questions.html', context)
