@@ -3,6 +3,8 @@
 {% block content %}
 <h2>{{ question.title }}</h2>
 <p>{{ question.text }}</p>
+<p><a href="/accounts/profile/<int:author_id>">{{ question.author }}</a></p>
+<p>{{ question.created_at }}</p>
 <h3>Ответы</h3>
 <ul>
     {% for answer in answers %}
