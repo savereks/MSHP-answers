@@ -2,13 +2,15 @@
 
 {% block content %}
 <h2>{{ question.title }}</h2>
-<p>{{ question.text }}</p>
 <p><a href="/accounts/profile/<int:author_id>">{{ question.author }}</a></p>
+<p>{{ question.text }}</p>
 <p>{{ question.created_at }}</p>
 <h3>Ответы</h3>
 <ul>
     {% for answer in answers %}
+        <li><h3><a href="/accounts/profile/<int:author_id>">{{ answer.author }}</a></h3></li>
         <li>{{ answer.text }}</li>
+        <li>{{ answer.created_at }}</li>
     {% endfor %}
 </ul>
 <h3>Добавить ответ</h3>
