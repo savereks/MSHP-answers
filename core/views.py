@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from core.models import Question
+from core.models import Question, Answer
 
 def general_context(request):
     """ Создает общий контекст """
@@ -28,6 +28,15 @@ def main(request):
 def calculator(request):
     return render(request, 'calc.html', general_context(request))
 
+def question(request, question_id):
+    question = Question.objects.get(id=question_id)
+    answers = Answer.objects.filter(question=question)
+    context = {
+        'question': question,
+        'answers': answers
+    }
+    context.update(general_context(request))
+    return render(request, 'question.html', context)
 
 def profile(request):
     """ показывает страницу профиля с именем пользователя"""
@@ -37,5 +46,3 @@ def profile(request):
     }
     context.update(general_context(request))
     return render(request, "profile.html", context)
-
-
