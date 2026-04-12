@@ -1,5 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from core.models import Question
+from core.forms import Question_Form
+
 
 def general_context(request):
     """ Создает общий контекст """
@@ -25,8 +27,31 @@ def main(request):
     return render(request, 'index.html', context)
 
 
-def calculator(request):
-    return render(request, 'calc.html', general_context(request))
+def create_question(request):
+    if request.method == "POST":
+        title = request.POST.get('title')
+        text = request.POST.get('text')
+
+        new_question = Question(
+            title=title,
+            text=text
+        )
+
+        new_question.save()
+
+        return redirect('/')
+
+    elif request.method == "GET":
+        form = Question_Form()
+        context = {
+            'form': form
+        }
+        context.update(general_context(request))
+        return render(
+            request,
+            "create_question.html",
+            context
+        )
 
 
 def profile(request):
