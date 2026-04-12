@@ -4,11 +4,11 @@ stages:
 
 django-tests:
   stage: django_tests
-    before_script:
+  before_script:
     - python3 -m venv venv
     - source venv/bin/activate
     - python3 -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org django
-    script:
+  script:
     - python3 manage.py test
 
 pylint-job:

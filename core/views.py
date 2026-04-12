@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from core.models import Question
-from core.forms import Question_Form
+from core.forms import Question_Form, Search_Form
 
 
 def general_context(request):
@@ -19,10 +19,18 @@ def general_context(request):
 
 # Create your views here.
 def main(request):
-    questions = Question.objects.all()[:10]
+    if request.method == "GET":
+        questions = Question.objects.all()[:10]
+    elif request.method == "POST":
+        title_search = request.POST.get('title_search')
+        questions = Question.objects.filter(title__contains=title_search)
+
+    form = Search_Form()
     context = {
-        'questions': questions
+        'questions': questions,
+        'form': form
     }
+
     context.update(general_context(request))
     return render(request, 'index.html', context)
 
