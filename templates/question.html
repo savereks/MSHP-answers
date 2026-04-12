@@ -11,4 +11,10 @@
         <li>{{ answer.text }}</li>
     {% endfor %}
 </ul>
+<h3>Добавить ответ</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ answer_form }}
+    <button type="submit">Добавить</button>
+</form>
 {% endblock %}
