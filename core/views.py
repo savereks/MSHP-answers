@@ -61,6 +61,29 @@ def create_question(request):
             context
         )
 
+def question(request, question_id):
+    if request.method == 'POST':
+        answer_form = AnswerForm(request.POST)
+        if answer_form.is_valid():
+            question = Question.objects.get(id=question_id)
+            answer = Answer(
+                question=question,
+                text=answer_form.cleaned_data['text'],
+                author=request.user
+            )
+            answer.save()
+            return redirect(f'/question/{question_id}/')
+    elif request.method == 'GET':
+        question = Question.objects.get(id=question_id)
+        answers = Answer.objects.filter(question=question)
+        answer_form = AnswerForm()
+        context = {
+            'question': question,
+            'answers': answers,
+            'answer_form': answer_form
+        }
+        context.update(general_context(request))
+        return render(request, 'question.html', context)
 
 def profile(request):
     """ показывает страницу профиля с именем пользователя"""
@@ -70,5 +93,3 @@ def profile(request):
     }
     context.update(general_context(request))
     return render(request, "profile.html", context)
-
-

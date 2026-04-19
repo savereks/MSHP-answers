@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', main),
     path('create_question/', create_question),
+    path('question/<int:question_id>/', cv.question),
     path('accounts/profile', cv.profile),
     path('accounts/', include("django.contrib.auth.urls")),
 ]
-
