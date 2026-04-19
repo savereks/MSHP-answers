@@ -10,8 +10,9 @@
         <a class="navbar-brand" href="/">MSHP Answers</a>
           <form action="/" method="post">
             {% csrf_token %}
-            {{ form }}
+            {{ sform }}
          <input type="submit">
+          </form>
         <ul class="nav-menu">
           {% for item in menu %}
             <li class="nav-item">

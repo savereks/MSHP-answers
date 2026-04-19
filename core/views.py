@@ -1,15 +1,22 @@
 from django.shortcuts import render, redirect
-from core.models import Question
-from core.forms import Question_Form, Search_Form
+from core.models import Question, Answer
+from core.forms import Question_Form, Search_Form, AnswerForm
 
 
 def general_context(request):
     """ Создает общий контекст """
+    search_form = Search_Form()
     context = {
         "menu": [
             ["Задать вопрос", "/create_question"],
-        ]
+        ],
+        'sform': search_form
     }
+    if request.method == "POST":
+        if "title_search" in request.POST:
+            title_search = request.POST.get('title_search')
+            questions = Question.objects.filter(title__contains=title_search)
+            context.update({"questions" : questions})
     if request.user.is_authenticated:
         context['menu'].append(['Профиль', '/accounts/profile'])
         context['menu'].append(['Выйти', '/'])
@@ -19,16 +26,9 @@ def general_context(request):
 
 # Create your views here.
 def main(request):
-    if request.method == "GET":
-        questions = Question.objects.all()[:10]
-    elif request.method == "POST":
-        title_search = request.POST.get('title_search')
-        questions = Question.objects.filter(title__contains=title_search)
-
-    form = Search_Form()
+    questions = Question.objects.all()[:10]
     context = {
-        'questions': questions,
-        'form': form
+        'questions': questions
     }
 
     context.update(general_context(request))
@@ -72,7 +72,7 @@ def question(request, question_id):
                 author=request.user
             )
             answer.save()
-            return redirect(f'/question/{question_id}/')
+        return redirect(f'/question/{question_id}/')
     elif request.method == 'GET':
         question = Question.objects.get(id=question_id)
         answers = Answer.objects.filter(question=question)

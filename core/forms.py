@@ -6,6 +6,6 @@ class AnswerForm(forms.Form):
 
 class Question_Form(forms.Form):
     title = forms.CharField(max_length=200)
-    text = forms.CharField(max_length=1024)
+    text = forms.CharField(max_length=1024, widget=forms.Textarea)
 class Search_Form(forms.Form):
     title_search = forms.CharField(max_length=200)

@@ -196,13 +196,12 @@
   <section aria-labelledby="qp-form-heading">
     <h3 id="qp-form-heading" class="qp-section-label">Добавить ответ</h3>
     <div class="qp-form-wrap">
-      <form method="post">
+      <form action="/question/{{question.id}}/" method="post">
         {% csrf_token %}
         {{ answer_form }}
         <button type="submit" class="qp-submit">Добавить</button>
       </form>
     </div>
   </section>
-</div>
 </div>
 {% endblock %}
