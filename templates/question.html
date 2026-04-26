@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .question-page-shell {
+    --qp-bg: #eef2f7;
+    background: var(--qp-bg);
+    min-height: calc(100vh - 3rem);
+    padding: 2rem 0 3rem;
+  }
+  .question-page {
+    --qp-surface: #ffffff;
+    --qp-border: #d5dee8;
+    --qp-text: #0f172a;
+    --qp-muted: #64748b;
+    --qp-accent: #0c4a6e;
+    --qp-link: #0369a1;
+    --qp-radius: 6px;
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--qp-text);
+    box-sizing: border-box;
+  }
+  .question-page-shell *,
+  .question-page-shell *::before,
+  .question-page-shell *::after {
+    box-sizing: border-box;
+  }
+  .question-page a {
+    color: var(--qp-link);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .question-page a:hover {
+    border-bottom-color: var(--qp-link);
+  }
+  .question-page .qp-card {
+    background: var(--qp-surface);
+    border: 1px solid var(--qp-border);
+    border-radius: var(--qp-radius);
+    padding: 1.25rem 1.35rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+  .question-page .qp-title {
+    margin: 0 0 0.75rem;
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    color: var(--qp-accent);
+  }
+  .question-page .qp-meta {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    color: var(--qp-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .question-page .qp-meta time,
+  .question-page .qp-answer time {
+    font-variant-numeric: tabular-nums;
+  }
+  .question-page .qp-body {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .question-page .qp-section-label {
+    margin: 0 0 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--qp-muted);
+  }
+  .question-page .qp-answers {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .question-page .qp-answer {
+    background: var(--qp-surface);
+    border: 1px solid var(--qp-border);
+    border-radius: var(--qp-radius);
+    padding: 1rem 1.15rem;
+    margin-bottom: 0.65rem;
+  }
+  .question-page .qp-answer:last-child {
+    margin-bottom: 0;
+  }
+  .question-page .qp-answer h3 {
+    margin: 0 0 0.35rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+  .question-page .qp-answer .qp-answer-text {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .question-page .qp-answer time {
+    display: block;
+    margin-top: 0.65rem;
+    font-size: 0.75rem;
+    color: var(--qp-muted);
+  }
+  .question-page .qp-form-wrap {
+    background: var(--qp-surface);
+    border: 1px solid var(--qp-border);
+    border-radius: var(--qp-radius);
+    padding: 1.15rem 1.25rem;
+    margin-top: 0.5rem;
+  }
+  .question-page .qp-form-wrap label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--qp-muted);
+    margin-bottom: 0.4rem;
+  }
+  .question-page .qp-form-wrap textarea {
+    width: 100%;
+    min-height: 6rem;
+    padding: 0.65rem 0.75rem;
+    font: inherit;
+    color: var(--qp-text);
+    background: #f8fafc;
+    border: 1px solid var(--qp-border);
+    border-radius: 4px;
+    resize: vertical;
+  }
+  .question-page .qp-form-wrap textarea:focus {
+    outline: none;
+    border-color: #7dd3fc;
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+    background: var(--qp-surface);
+  }
+  .question-page .qp-submit {
+    margin-top: 0.85rem;
+    padding: 0.5rem 1rem;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #f0f9ff;
+    background: var(--qp-accent);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .question-page .qp-submit:hover {
+    background: #075985;
+  }
+  .question-page .qp-empty {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--qp-muted);
+    font-style: italic;
+  }
+</style>
+
+<div class="question-page-shell">
+<div class="question-page">
+  <article class="qp-card" aria-labelledby="qp-q-title">
+    <h2 id="qp-q-title" class="qp-title">{{ question.title }}</h2>
+    <p class="qp-meta">
+      <a href="/accounts/profile">{{ question.author }}</a>
+      ·
+      <time datetime="{{ question.created_at|date:'c' }}">{{ question.created_at }}</time>
+    </p>
+    <p class="qp-body">{{ question.text }}</p>
+  </article>
+
+  <section class="qp-card" aria-labelledby="qp-answers-heading">
+    <h3 id="qp-answers-heading" class="qp-section-label">Ответы</h3>
+    {% if answers %}
+      <ul class="qp-answers">
+        {% for answer in answers %}
+          <li class="qp-answer">
+            <h3><a href="/accounts/profile">{{ answer.author }}</a></h3>
+            <p class="qp-answer-text">{{ answer.text }}</p>
+            <time datetime="{{ answer.created_at|date:'c' }}">{{ answer.created_at }}</time>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="qp-empty">Пока нет ответов.</p>
+    {% endif %}
+  </section>
+
+  <section aria-labelledby="qp-form-heading">
+    <h3 id="qp-form-heading" class="qp-section-label">Добавить ответ</h3>
+    <div class="qp-form-wrap">
+      <form action="/question/{{question.id}}/" method="post">
+        {% csrf_token %}
+        {{ answer_form }}
+        <button type="submit" class="qp-submit">Добавить</button>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}
