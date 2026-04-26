@@ -1,5 +1,99 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{{ user }}
+<div class="page-wrapper">
+  <div class="profile-card">
+
+    <div class="profile-header-banner"></div>
+
+    <div class="profile-body">
+
+      <!-- Avatar -->
+      <div class="avatar-wrap">
+        {% if profile_pic %}
+          <img class="avatar-circle" src="{{ profile_pic }}" alt="Profile picture">
+        {% else %}
+          <div class="avatar-placeholder">
+            {{ user.username|first|upper }}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Name row: avatar is positioned absolutely above, so we just add top padding -->
+      <div class="profile-name-row">
+        <span class="profile-username">{{ user.username }}</span>
+        {% if user.is_staff %}
+          <span class="profile-badge">Администратор</span>
+        {% else %}
+          <span class="profile-badge">Участник</span>
+        {% endif %}
+      </div>
+
+      <!-- Meta info -->
+      <div class="profile-meta">
+        {% if user.email %}
+        <span class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+          {{ user.email }}
+        </span>
+        {% endif %}
+        <span class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          На сайте с {{ user.date_joined|date:"d.m.Y" }}
+        </span>
+        {% if user.first_name or user.last_name %}
+        <span class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          {{ user.first_name }} {{ user.last_name }}
+        </span>
+        {% endif %}
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Quick actions -->
+      <p class="section-heading">Быстрые действия</p>
+      <div class="action-grid">
+        <a href="{% url 'my-questions' %}" class="action-card">
+          <div class="action-card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="action-card-text">
+            <span class="action-card-label">Мои вопросы</span>
+            <span class="action-card-sub">Посмотреть историю</span>
+          </div>
+        </a>
+
+        <a href="/create_question" class="action-card">
+          <div class="action-card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </div>
+          <div class="action-card-text">
+            <span class="action-card-label">Задать вопрос</span>
+            <span class="action-card-sub">Новый вопрос</span>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
 {% endblock %}

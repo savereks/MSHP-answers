@@ -9,6 +9,15 @@ class Tag(models.Model):
         return self.name
 
 
+class ProfileImage(models.Model):
+    file = models.ImageField(
+        upload_to='media/profile_pics/'
+    )
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE
+    )
+
+
 class Question(models.Model):
     title = models.CharField(max_length=200)
     text = models.TextField()

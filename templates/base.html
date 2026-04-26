@@ -1,8 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>МШП Ответы</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
 <nav class="navbar">
@@ -19,6 +22,14 @@
               <a class="nav-link" href="{{item.1}}">{{item.0}}</a>
             </li>
           {% endfor %}
+          {% if user.is_authenticated %}
+            <li>
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">Выйти</button>
+              </form>
+            </li>
+          {% endif %}
         </ul>
       </div>
     </nav>
