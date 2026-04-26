@@ -27,7 +27,7 @@ import core.views as cv
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', main),
-    path('accounts/profile/', cv.profile, name='profile'),
+    path('accounts/profile/<int:profile_id>/', cv.profile, name='profile'),
     path('accounts/login/', cv.user_login, name='login'),
     path('accounts/register/', cv.register, name='register'),
     path('accounts/logout/', LogoutView.as_view(), name='logout'),

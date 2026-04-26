@@ -169,8 +169,17 @@
   <article class="qp-card" aria-labelledby="qp-q-title">
     <h2 id="qp-q-title" class="qp-title">{{ question.title }}</h2>
     <p class="qp-meta">
-      <a href="/accounts/profile">{{ question.author }}</a>
-      ·
+      <a href="/accounts/profile/{{}}">{{ question.author }}</a>
+      <img class="avatar-circle avatar-circle--sm" src="{{ question.author_avatar_url }}" alt="">
+      {% if question.tags.all %}
+        <div class="question-card__tags">
+          {% for tag in question.tags.all %}
+            <span class="q-tag">{{ tag.name }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+
       <time datetime="{{ question.created_at|date:'c' }}">{{ question.created_at }}</time>
     </p>
     <p class="qp-body">{{ question.text }}</p>

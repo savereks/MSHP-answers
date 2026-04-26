@@ -150,9 +150,10 @@ def question(request, question_id):
 
 
 @login_required
-def profile(request):
+def profile(request, profile_id):
     """ показывает страницу профиля с именем пользователя"""
-    user = request.user
+    user = User.objects.get(id=profile_id)
+
     profile_image_obj = ProfileImage.objects.filter(user_id=user.id).first()
     profile_pic_url = profile_image_obj.file if profile_image_obj else None
     context = {
@@ -160,7 +161,7 @@ def profile(request):
         'profile_pic': profile_pic_url,
     }
     context.update(general_context(request))
-    return render(request, "profile.html", context)
+    return render(request, f"profile.html", context)
 
 
 def user_login(request):
