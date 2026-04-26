@@ -23,10 +23,21 @@ class Question(models.Model):
     text = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    tags = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='tags')
 
     def __str__(self):
         return self.title
+
+
+class Vote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, null=True, blank=True)
+    answer = models.ForeignKey('Answer', on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    vote_type = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = [['user', 'question'], ['user', 'answer']]
 
 
 class Answer(models.Model):
@@ -49,19 +60,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text
-
-
-class Vote(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, null=True, blank=True)
-    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = [
-            ['user', 'question'],
-            ['user', 'answer']
-        ]
-
-    def __str__(self):
-        return self.user.username

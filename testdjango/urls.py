@@ -32,8 +32,13 @@ urlpatterns = [
     path('accounts/register/', cv.register, name='register'),
     path('accounts/logout/', LogoutView.as_view(), name='logout'),
     path('my-questions/', cv.my_questions, name='my-questions'),
-path('create_question/', create_question),
+    path('create_question/', create_question),
     path('question/<int:question_id>/', cv.question),
+    path(
+        'question/<int:question_id>/vote/',
+        cv.vote_question,
+        name='vote_question',
+    ),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,6 +1,7 @@
 # from core.models import Question, Answer
 from django import forms
 from django.contrib.auth.models import User
+from core.models import Tag
 
 
 class AnswerForm(forms.Form):
@@ -15,6 +16,7 @@ class LoginForm(forms.Form):
 class Question_Form(forms.Form):
     title = forms.CharField(max_length=200)
     text = forms.CharField(max_length=1024, widget=forms.Textarea)
+    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple)
 
 class Search_Form(forms.Form):
     title_search = forms.CharField(max_length=200)
