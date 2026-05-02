@@ -38,7 +38,7 @@
           {% endif %}
           <span class="question-card__author-name">
             {% if question.author %}
-              <a href="/accounts/profile/">{{ question.author.username }}</a>
+              <a href="{% url 'profile' question.author.id %}">{{ question.author.username }}</a>
             {% else %}
               <span class="question-card__author-anon">Неизвестный автор</span>
             {% endif %}

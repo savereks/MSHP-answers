@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from core.models import Question, Answer, ProfileImage, Vote, Tag
+from core.models import Question, Answer, ProfileImage, Vote, Tag, User
 from core.forms import Question_Form, Search_Form, AnswerForm
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
@@ -25,12 +25,12 @@ def general_context(request):
             questions = Question.objects.filter(title__contains=title_search)
             context.update({"questions" : questions})
     if request.user.is_authenticated:
-        context['menu'].append(['Профиль', '/accounts/profile/'])
+        context['menu'].append(['Профиль', f'/accounts/profile/{request.user.id}'])
     else:
         context['menu'].append(['Войти', '/accounts/login/'])
     return context
 
-# Create your views here.
+
 def main(request):
     context = {}
     context.update(general_context(request))
@@ -124,6 +124,7 @@ def create_question(request):
             context
         )
 
+
 def question(request, question_id):
     if request.method == 'POST':
         answer_form = AnswerForm(request.POST)
@@ -149,7 +150,7 @@ def question(request, question_id):
         return render(request, 'question.html', context)
 
 
-@login_required
+@login_required(login_url='/accounts/login/')
 def profile(request, profile_id):
     """ показывает страницу профиля с именем пользователя"""
     user = User.objects.get(id=profile_id)
@@ -161,7 +162,7 @@ def profile(request, profile_id):
         'profile_pic': profile_pic_url,
     }
     context.update(general_context(request))
-    return render(request, f"profile.html", context)
+    return render(request, "profile.html", context)
 
 
 def user_login(request):
@@ -173,7 +174,7 @@ def user_login(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return redirect('/accounts/profile/')
+                    return redirect(f'/accounts/profile/{user.id}')
                 else:
                     return HttpResponse('Disabled account')
             else:
