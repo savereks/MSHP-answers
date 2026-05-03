@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from core.models import Question, Answer, ProfileImage, Vote, Tag, User
-from core.forms import Question_Form, Search_Form, AnswerForm
+from core.forms import Question_Form, Search_Form, AnswerForm, UserRegistrationForm
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
@@ -28,6 +28,7 @@ def general_context(request):
         context['menu'].append(['Профиль', f'/accounts/profile/{request.user.id}'])
     else:
         context['menu'].append(['Войти', '/accounts/login/'])
+        context['menu'].append(['Регистрация', '/accounts/register/'])
     return context
 
 
@@ -118,11 +119,7 @@ def create_question(request):
             'form': form
         }
         context.update(general_context(request))
-        return render(
-            request,
-            "create_question.html",
-            context
-        )
+        return render(request, "create_question.html", context)
 
 
 def question(request, question_id):
@@ -152,7 +149,7 @@ def question(request, question_id):
 
 @login_required(login_url='/accounts/login/')
 def profile(request, profile_id):
-    """ показывает страницу профиля с именем пользователя"""
+    """ Показывает страницу профиля с именем пользователя"""
     user = User.objects.get(id=profile_id)
 
     profile_image_obj = ProfileImage.objects.filter(user_id=user.id).first()
@@ -184,24 +181,27 @@ def user_login(request):
     context = {
         'form': form
     }
+    context.update(general_context(request))
     return render(request, 'registration/login.html', context)
 
 
 def register(request):
     if request.method == 'POST':
-        user_form = UserRegistrationForm(request.POST)
-        if user_form.is_valid():
-            # Create a new user object but avoid saving it yet
-            new_user = user_form.save(commit=False)
-            # Set the chosen password
-            new_user.set_password(user_form.cleaned_data['password'])
-            # Save the User object
-            new_user.save()
-            return render(request, 'account/register_done.html', {'new_user': new_user})
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+
+            login(request, user)
+
+            return redirect(f'/accounts/profile/{user.id}/')
     else:
-        user_form = UserRegistrationForm()
-    context = {'user_form': user_form}
-    return render(request, 'account/register.html', context)
+        form = UserRegistrationForm()
+
+    context = {
+        'form': form
+    }
+    context.update(general_context(request))
+    return render(request, 'registration/register.html', context)
 
 
 def my_questions(request):
