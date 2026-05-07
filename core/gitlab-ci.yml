@@ -1,0 +1,22 @@
+stages:
+  - django_tests
+  - pylint
+
+django-tests:
+  stage: django_tests
+  before_script:
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - python3 -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org django
+  script:
+    - python3 manage.py test
+
+pylint-job:
+  stage: pylint
+  before_script:
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - python3 -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pylint django
+  script:
+    - pylint --fail-under=6.0 core/views.py
+
