@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from core.models import Question, Answer, ProfileImage, Vote, Tag, User
-from core.forms import Question_Form, Search_Form, AnswerForm, UserRegistrationForm
+from core.forms import Question_Form, Search_Form, AnswerForm, UserRegistrationForm, ProfileForm
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
@@ -31,7 +31,7 @@ def general_context(request):
         context['menu'].append(['Регистрация', '/accounts/register/'])
     return context
 
-# Create your views here.
+
 def main(request):
     context = {}
     context.update(general_context(request))
@@ -40,17 +40,16 @@ def main(request):
         qs = context['questions'].select_related('author').prefetch_related('tags')
     else:
         qs = (
-            Question.objects.select_related('author')
-            .prefetch_related('tags')
-            .order_by('-created_at')[:10]
+            Question.objects.select_related('author').prefetch_related('tags').order_by('-created_at')
         )
 
     questions = list(qs)
     author_ids = {q.author_id for q in questions if q.author_id}
     avatar_by_user = {}
     if author_ids:
-        for img in ProfileImage.objects.filter(user_id__in=author_ids):
-            avatar_by_user[img.user_id] = img.file.url
+        for img in ProfileImage.objects.filter(user_id__in=author_ids).select_related('user'):
+            if ProfileImage.avatar:
+                avatar_by_user[img.user_id] = img.avatar.url
 
     for question in questions:
         qvotes = Vote.objects.filter(question=question, answer__isnull=True)
@@ -61,6 +60,7 @@ def main(request):
         question.author_avatar_url = avatar_by_user.get(aid) if aid else None
 
     context['questions'] = questions
+    context.update(general_context(request))
     return render(request, 'index.html', context)
 
 
@@ -150,16 +150,32 @@ def question(request, question_id):
 @login_required(login_url='/accounts/login/')
 def profile(request, profile_id):
     """ Показывает страницу профиля с именем пользователя"""
+
     user = User.objects.get(id=profile_id)
 
-    profile_image_obj = ProfileImage.objects.filter(user_id=user.id).first()
-    profile_pic_url = profile_image_obj.file if profile_image_obj else None
     context = {
         'user': user,
-        'profile_pic': profile_pic_url,
     }
     context.update(general_context(request))
     return render(request, "profile.html", context)
+
+
+@login_required
+def edit_profile(request):
+
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile', profile_id=request.user.id)
+    else:
+        form = ProfileForm(instance=request.user.profile)
+
+    context = {
+        'form': form,
+    }
+    context.update(general_context(request))
+    return render(request, 'edit_profile.html', context)
 
 
 def user_login(request):

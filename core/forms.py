@@ -1,7 +1,7 @@
 # from core.models import Question, Answer
 from django import forms
 from django.contrib.auth.models import User
-from core.models import Tag
+from core.models import Tag, ProfileImage
 
 
 class AnswerForm(forms.Form):
@@ -56,3 +56,16 @@ class UserRegistrationForm(forms.ModelForm):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('Этот email уже используется')
         return email
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = ProfileImage
+        fields = ('avatar', 'bio')
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Расскажите о себе'}),
+        }
+        labels = {
+            'avatar': 'Аватарка',
+            'bio': 'О себе',
+        }

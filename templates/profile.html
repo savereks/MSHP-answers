@@ -10,22 +10,26 @@
 
       <!-- Avatar -->
       <div class="avatar-wrap">
-        {% if profile_pic %}
-          <img class="avatar-circle" src="{{ profile_pic }}" alt="Profile picture">
+        {% if user.profile.avatar.url %}
+          <img class="avatar-circle" src="{{ user.profile.avatar.url }}" alt="Profile picture">
         {% else %}
-          <div class="avatar-placeholder">
-            {{ user.username|first|upper }}
-          </div>
+          <img class="avatar-circle" src="profile_pics/default.jpg"  alt="Profile picture">
         {% endif %}
       </div>
 
-      <!-- Name row: avatar is positioned absolutely above, so we just add top padding -->
       <div class="profile-name-row">
         <span class="profile-username">{{ user.username }}</span>
         {% if user.is_staff %}
           <span class="profile-badge">Администратор</span>
         {% else %}
           <span class="profile-badge">Участник</span>
+        {% endif %}
+        {% if request.user.is_authenticated %}
+          {% if request.user == user %}
+            <a href="{% url 'edit_profile' %}" class="btn-edit">Редактировать профиль</a>
+          {% endif %}
+        {% else %}
+          <p>Вы не авторизованы</p>
         {% endif %}
       </div>
 
@@ -62,7 +66,7 @@
 
       <div class="divider"></div>
 
-      <!-- Quick actions -->
+
       <p class="section-heading">Быстрые действия</p>
       <div class="action-grid">
         <a href="{% url 'my-questions' %}" class="action-card">
