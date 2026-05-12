@@ -1,7 +1,7 @@
 # from core.models import Question, Answer
 from django import forms
 from django.contrib.auth.models import User
-from core.models import Tag
+from core.models import Tag, UserProfile
 
 
 class AnswerForm(forms.Form):
@@ -35,3 +35,15 @@ class UserRegistrationForm(forms.ModelForm):
         if cd['password'] != cd['password2']:
             raise forms.ValidationError('Passwords don\'t match.')
         return cd['password2']
+
+
+class ProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ('bio',)
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Расскажите о себе...'}),
+        }
+        labels = {
+            'bio': 'О себе',
+        }

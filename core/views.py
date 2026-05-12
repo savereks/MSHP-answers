@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from core.models import Question, Answer, ProfileImage, Vote, Tag, User
+from core.models import Question, Answer, ProfileImage, Vote, Tag, User, UserProfile
 from core.forms import Question_Form, Search_Form, AnswerForm
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from .forms import LoginForm, UserRegistrationForm
+from .forms import LoginForm, UserRegistrationForm, ProfileEditForm
 
 
 def general_context(request):
@@ -152,17 +152,34 @@ def question(request, question_id):
 
 @login_required(login_url='/accounts/login/')
 def profile(request, profile_id):
-    """ показывает страницу профиля с именем пользователя"""
     user = User.objects.get(id=profile_id)
+
+    user_profile, _ = UserProfile.objects.get_or_create(user=user)
 
     profile_image_obj = ProfileImage.objects.filter(user_id=user.id).first()
     profile_pic_url = profile_image_obj.file if profile_image_obj else None
+
+    is_owner = request.user == user
+    bio_form = None
+
+    if is_owner:
+        if request.method == 'POST' and 'save_bio' in request.POST:
+            bio_form = ProfileEditForm(request.POST, instance=user_profile)
+            if bio_form.is_valid():
+                bio_form.save()
+                return redirect(f'/accounts/profile/{profile_id}/')
+        else:
+            bio_form = ProfileEditForm(instance=user_profile)
+
     context = {
         'user': user,
         'profile_pic': profile_pic_url,
+        'user_profile': user_profile,
+        'bio_form': bio_form,
+        'is_owner': is_owner,
     }
     context.update(general_context(request))
-    return render(request, "profile.html", context)
+    return render(request, 'profile.html', context)
 
 
 def user_login(request):
