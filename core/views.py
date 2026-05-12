@@ -204,12 +204,17 @@ def register(request):
     return render(request, 'account/register.html', context)
 
 
+@login_required(login_url='/accounts/login/')
 def my_questions(request):
     user = request.user
-    user_questions = []
+    user_questions = (
+        Question.objects.filter(author=user)
+        .prefetch_related('tags')
+        .order_by('-created_at')
+    )
     context = {
         'user': user,
-        'questions': user_questions
+        'questions': user_questions,
     }
     context.update(general_context(request))
     return render(request, 'my-questions.html', context)
