@@ -169,18 +169,22 @@
   <article class="qp-card" aria-labelledby="qp-q-title">
     <h2 id="qp-q-title" class="qp-title">{{ question.title }}</h2>
     <p class="qp-meta">
-      <a href="{% url 'profile' question.author.id %}">{{ question.author }}</a>
-      <img class="avatar-circle avatar-circle--sm" src="{{ question.author_avatar_url }}" alt="">
+      {% if question.author %}
+        <a href="{% url 'profile' question.author.id %}">{{ question.author.username }}</a>
+        {% if author_avatar_url %}
+          <img class="avatar-circle avatar-circle--sm" src="{{ author_avatar_url }}" alt="">
+        {% endif %}
+      {% else %}
+        <span>Неизвестный автор</span>
+      {% endif %}
       {% if question.tags.all %}
-        <div class="question-card__tags">
+        <div class="question-card__tags" style="display:inline-flex; gap:0.35rem; flex-wrap:wrap; margin-left:0.5rem;">
           {% for tag in question.tags.all %}
             <span class="q-tag">{{ tag.name }}</span>
           {% endfor %}
         </div>
-        {% endif %}
-
-
-      <time datetime="{{ question.created_at|date:'c' }}">{{ question.created_at }}</time>
+      {% endif %}
+      <time datetime="{{ question.created_at|date:'c' }}">{{ question.created_at|date:"d.m.Y H:i" }}</time>
     </p>
     <p class="qp-body">{{ question.text }}</p>
   </article>
@@ -191,9 +195,15 @@
       <ul class="qp-answers">
         {% for answer in answers %}
           <li class="qp-answer">
-            <h3><a href="{% url 'profile' answer.author.id %}">{{ answer.author }}</a></h3>
+            <h3>
+              {% if answer.author %}
+                <a href="{% url 'profile' answer.author.id %}">{{ answer.author.username }}</a>
+              {% else %}
+                <span>Неизвестный автор</span>
+              {% endif %}
+            </h3>
             <p class="qp-answer-text">{{ answer.text }}</p>
-            <time datetime="{{ answer.created_at|date:'c' }}">{{ answer.created_at }}</time>
+            <time datetime="{{ answer.created_at|date:'c' }}">{{ answer.created_at|date:"d.m.Y H:i" }}</time>
           </li>
         {% endfor %}
       </ul>
@@ -212,5 +222,6 @@
       </form>
     </div>
   </section>
+</div>
 </div>
 {% endblock %}

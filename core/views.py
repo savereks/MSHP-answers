@@ -78,7 +78,8 @@ def vote_question(request, question_id):
     Vote.objects.update_or_create(
         user=request.user,
         question=question,
-        defaults={'vote_type': vote_type, 'answer': None},
+        answer=None,
+        defaults={'vote_type': vote_type},
     )
 
     qvotes = Vote.objects.filter(question=question, answer__isnull=True)
@@ -129,22 +130,30 @@ def question(request, question_id):
     if request.method == 'POST':
         answer_form = AnswerForm(request.POST)
         if answer_form.is_valid():
-            question = Question.objects.get(id=question_id)
+            q = get_object_or_404(Question, id=question_id)
             answer = Answer(
-                question=question,
+                question=q,
                 text=answer_form.cleaned_data['text'],
-                author=request.user
+                author=request.user if request.user.is_authenticated else None
             )
             answer.save()
         return redirect(f'/question/{question_id}/')
     elif request.method == 'GET':
-        question = Question.objects.get(id=question_id)
-        answers = Answer.objects.filter(question=question)
+        q = get_object_or_404(Question.objects.select_related('author').prefetch_related('tags'), id=question_id)
+        answers = Answer.objects.filter(question=q, parent__isnull=True).select_related('author')
+
+        author_avatar_url = None
+        if q.author_id:
+            img = ProfileImage.objects.filter(user_id=q.author_id).first()
+            if img:
+                author_avatar_url = img.file.url
+
         answer_form = AnswerForm()
         context = {
-            'question': question,
+            'question': q,
             'answers': answers,
-            'answer_form': answer_form
+            'answer_form': answer_form,
+            'author_avatar_url': author_avatar_url,
         }
         context.update(general_context(request))
         return render(request, 'question.html', context)
@@ -152,7 +161,7 @@ def question(request, question_id):
 
 @login_required(login_url='/accounts/login/')
 def profile(request, profile_id):
-    user = User.objects.get(id=profile_id)
+    user = get_object_or_404(User, id=profile_id)
 
     user_profile, _ = UserProfile.objects.get_or_create(user=user)
 
