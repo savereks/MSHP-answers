@@ -14,7 +14,7 @@
           <form action="/" method="post">
             {% csrf_token %}
             {{ sform }}
-         <input type="submit" value="Найти">
+         <button type="submit">Поиск</button>
           </form>
         <ul class="nav-menu">
           {% for item in menu %}

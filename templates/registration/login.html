@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-{% block title %}Log-in{% endblock %}
+{% block title %}Вход{% endblock %}
 {% block content %}
-    <h1>Log-in</h1>
+    <h1>Вход</h1>
     {% if form.errors %}
         <p>
-            Your username and password didn't match.
-            Please try again.
+            Ваше имя пользователя и пароль не совпадают.
+            Пожалуйста, попробуйте еще раз.
         </p>
     {% else %}
-        <p>Please, use the following form to log-in. If you don't have an account <a href="{% url 'register' %}">register here</a></p>
+        <p> Пожалуйста, создайте аккаунт, если его ещё не существует <a href="{% url 'register' %}">Зарегистрироваться</a></p>
     {% endif %}
     <div class="login-form">
         <form action="{% url 'login' %}" method="post">
             {{ form.as_p }}
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}"/>
-            <p><input type="submit" value="Log-in"></p>
+            <p><input type="submit" value="Войти"></p>
         </form>
     </div>
 {% endblock %}

@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect
-from core.models import Question, Answer, ProfileImage, Vote, Tag, User, UserProfile
-from core.forms import Question_Form, Search_Form, AnswerForm
+from core.models import Question, Answer, ProfileImage, Vote, Tag, User
+from core.forms import Question_Form, Search_Form, AnswerForm, UserRegistrationForm, ProfileForm
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from .forms import LoginForm, UserRegistrationForm, ProfileEditForm
+from .forms import LoginForm, UserRegistrationForm
 
 
 def general_context(request):
@@ -28,6 +28,7 @@ def general_context(request):
         context['menu'].append(['Профиль', f'/accounts/profile/{request.user.id}'])
     else:
         context['menu'].append(['Войти', '/accounts/login/'])
+        context['menu'].append(['Регистрация', '/accounts/register/'])
     return context
 
 
@@ -39,17 +40,16 @@ def main(request):
         qs = context['questions'].select_related('author').prefetch_related('tags')
     else:
         qs = (
-            Question.objects.select_related('author')
-            .prefetch_related('tags')
-            .order_by('-created_at')[:10]
+            Question.objects.select_related('author').prefetch_related('tags').order_by('-created_at')
         )
 
     questions = list(qs)
     author_ids = {q.author_id for q in questions if q.author_id}
     avatar_by_user = {}
     if author_ids:
-        for img in ProfileImage.objects.filter(user_id__in=author_ids):
-            avatar_by_user[img.user_id] = img.file.url
+        for img in ProfileImage.objects.filter(user_id__in=author_ids).select_related('user'):
+            if ProfileImage.avatar:
+                avatar_by_user[img.user_id] = img.avatar.url
 
     for question in questions:
         qvotes = Vote.objects.filter(question=question, answer__isnull=True)
@@ -60,6 +60,7 @@ def main(request):
         question.author_avatar_url = avatar_by_user.get(aid) if aid else None
 
     context['questions'] = questions
+    context.update(general_context(request))
     return render(request, 'index.html', context)
 
 
@@ -78,8 +79,7 @@ def vote_question(request, question_id):
     Vote.objects.update_or_create(
         user=request.user,
         question=question,
-        answer=None,
-        defaults={'vote_type': vote_type},
+        defaults={'vote_type': vote_type, 'answer': None},
     )
 
     qvotes = Vote.objects.filter(question=question, answer__isnull=True)
@@ -119,41 +119,29 @@ def create_question(request):
             'form': form
         }
         context.update(general_context(request))
-        return render(
-            request,
-            "create_question.html",
-            context
-        )
+        return render(request, "create_question.html", context)
 
 
 def question(request, question_id):
     if request.method == 'POST':
         answer_form = AnswerForm(request.POST)
         if answer_form.is_valid():
-            q = get_object_or_404(Question, id=question_id)
+            question = Question.objects.get(id=question_id)
             answer = Answer(
-                question=q,
+                question=question,
                 text=answer_form.cleaned_data['text'],
-                author=request.user if request.user.is_authenticated else None
+                author=request.user
             )
             answer.save()
         return redirect(f'/question/{question_id}/')
     elif request.method == 'GET':
-        q = get_object_or_404(Question.objects.select_related('author').prefetch_related('tags'), id=question_id)
-        answers = Answer.objects.filter(question=q, parent__isnull=True).select_related('author')
-
-        author_avatar_url = None
-        if q.author_id:
-            img = ProfileImage.objects.filter(user_id=q.author_id).first()
-            if img:
-                author_avatar_url = img.file.url
-
+        question = Question.objects.get(id=question_id)
+        answers = Answer.objects.filter(question=question)
         answer_form = AnswerForm()
         context = {
-            'question': q,
+            'question': question,
             'answers': answers,
-            'answer_form': answer_form,
-            'author_avatar_url': author_avatar_url,
+            'answer_form': answer_form
         }
         context.update(general_context(request))
         return render(request, 'question.html', context)
@@ -161,34 +149,33 @@ def question(request, question_id):
 
 @login_required(login_url='/accounts/login/')
 def profile(request, profile_id):
-    user = get_object_or_404(User, id=profile_id)
+    """ Показывает страницу профиля с именем пользователя"""
 
-    user_profile, _ = UserProfile.objects.get_or_create(user=user)
-
-    profile_image_obj = ProfileImage.objects.filter(user_id=user.id).first()
-    profile_pic_url = profile_image_obj.file if profile_image_obj else None
-
-    is_owner = request.user == user
-    bio_form = None
-
-    if is_owner:
-        if request.method == 'POST' and 'save_bio' in request.POST:
-            bio_form = ProfileEditForm(request.POST, instance=user_profile)
-            if bio_form.is_valid():
-                bio_form.save()
-                return redirect(f'/accounts/profile/{profile_id}/')
-        else:
-            bio_form = ProfileEditForm(instance=user_profile)
+    user = User.objects.get(id=profile_id)
 
     context = {
         'user': user,
-        'profile_pic': profile_pic_url,
-        'user_profile': user_profile,
-        'bio_form': bio_form,
-        'is_owner': is_owner,
     }
     context.update(general_context(request))
     return render(request, 'profile.html', context)
+
+
+@login_required
+def edit_profile(request):
+
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile', profile_id=request.user.id)
+    else:
+        form = ProfileForm(instance=request.user.profile)
+
+    context = {
+        'form': form,
+    }
+    context.update(general_context(request))
+    return render(request, 'edit_profile.html', context)
 
 
 def user_login(request):
@@ -210,24 +197,27 @@ def user_login(request):
     context = {
         'form': form
     }
+    context.update(general_context(request))
     return render(request, 'registration/login.html', context)
 
 
 def register(request):
     if request.method == 'POST':
-        user_form = UserRegistrationForm(request.POST)
-        if user_form.is_valid():
-            # Create a new user object but avoid saving it yet
-            new_user = user_form.save(commit=False)
-            # Set the chosen password
-            new_user.set_password(user_form.cleaned_data['password'])
-            # Save the User object
-            new_user.save()
-            return render(request, 'account/register_done.html', {'new_user': new_user})
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+
+            login(request, user)
+
+            return redirect(f'/accounts/profile/{user.id}/')
     else:
-        user_form = UserRegistrationForm()
-    context = {'user_form': user_form}
-    return render(request, 'account/register.html', context)
+        form = UserRegistrationForm()
+
+    context = {
+        'form': form
+    }
+    context.update(general_context(request))
+    return render(request, 'registration/register.html', context)
 
 
 @login_required(login_url='/accounts/login/')
