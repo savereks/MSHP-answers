@@ -71,9 +71,3 @@ class Comment(models.Model):
     def __str__(self):
         return self.text
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
-    bio = models.TextField(blank=True, default='')
-
-    def __str__(self):
-        return f'Profile of {self.user.username}'

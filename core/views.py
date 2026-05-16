@@ -1,4 +1,3 @@
-from django.shortcuts import render, redirect
 from core.models import Question, Answer, ProfileImage, Vote, Tag, User
 from core.forms import Question_Form, Search_Form, AnswerForm, UserRegistrationForm, ProfileForm
 from django.http import HttpResponse, JsonResponse
@@ -8,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, UserRegistrationForm
+from django.db import models
 
 
 def general_context(request):
@@ -36,16 +36,41 @@ def main(request):
     context = {}
     context.update(general_context(request))
 
+    # Получаем все теги для фильтра
+    all_tags = Tag.objects.all().order_by('name')
+
+    # Получаем выбранные теги
+    selected_tags = [tag for tag in request.GET.getlist('tags') if tag]
+
+    # Получаем поисковый запрос
+    search_query = request.GET.get('q', '').strip()
+
     if 'questions' in context:
         qs = context['questions'].select_related('author').prefetch_related('tags')
     else:
         qs = (
-            Question.objects.select_related('author').prefetch_related('tags').order_by('-created_at')
+            Question.objects.select_related('author')
+            .prefetch_related('tags')
+            .order_by('-created_at')
         )
+
+    # Поиск по тексту вопроса
+    if search_query:
+        qs = qs.filter(
+            models.Q(title__icontains=search_query) |
+            models.Q(text__icontains=search_query)
+        )
+
+    # Фильтрация по тегам
+    if selected_tags:
+        for tag_slug in selected_tags:
+            qs = qs.filter(tags=tag_slug)
+        qs = qs.distinct()
 
     questions = list(qs)
     author_ids = {q.author_id for q in questions if q.author_id}
     avatar_by_user = {}
+
     if author_ids:
         for img in ProfileImage.objects.filter(user_id__in=author_ids).select_related('user'):
             if ProfileImage.avatar:
@@ -57,10 +82,12 @@ def main(request):
         question.dislikes = qvotes.filter(vote_type=False).count()
         question.rating = question.likes - question.dislikes
         aid = question.author_id
-        question.author_avatar_url = avatar_by_user.get(aid) if aid else None
+        question.author_avatar_url = avatar_by_user.get(aid, '/media/avatars/default.png')
 
     context['questions'] = questions
-    context.update(general_context(request))
+    context['all_tags'] = all_tags
+    context['selected_tags'] = selected_tags
+    context['search_query'] = search_query
     return render(request, 'index.html', context)
 
 
