@@ -18,7 +18,6 @@ class LoginForm(forms.Form):
         self.fields['password'].label = 'Пароль'
 
 
-
 class Question_Form(forms.Form):
     title = forms.CharField(max_length=200)
     text = forms.CharField(max_length=1024, widget=forms.Textarea)

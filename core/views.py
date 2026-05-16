@@ -152,9 +152,11 @@ def profile(request, profile_id):
     """ Показывает страницу профиля с именем пользователя"""
 
     user = User.objects.get(id=profile_id)
+    profile, created = ProfileImage.objects.get_or_create(user=user)
 
     context = {
         'user': user,
+        'profile': profile,
     }
     context.update(general_context(request))
     return render(request, 'profile.html', context)

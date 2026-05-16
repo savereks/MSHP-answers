@@ -65,26 +65,12 @@
       </div>
 
         <!-- Bio -->
-      {% if user_profile.bio %}
-      <div class="profile-bio" style="padding: 0.75rem 0; color: #334155; font-size: 0.9375rem; line-height: 1.6;">
-        {{ user_profile.bio }}
-      </div>
-      {% endif %}
+      {% if user.profile.bio %}
+                <p class="profile-bio">{{ user.profile.bio }}</p>
+            {% else %}
+                <p class="profile-bio-empty">Пользователь ещё не заполнил информацию о себе</p>
+            {% endif %}
 
-      <!-- Edit bio -->
-      {% if is_owner %}
-      <div style="margin: 0.75rem 0;">
-        <form method="post" action="/accounts/profile/{{ user.id }}/">
-          {% csrf_token %}
-          {{ bio_form.as_p }}
-          <button type="submit" name="save_bio"
-            style="padding: 0.45rem 1rem; background: #0c4a6e; color: white;
-                   border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem;">
-            Сохранить
-          </button>
-        </form>
-      </div>
-      {% endif %}
       <div class="divider"></div>
 
 
