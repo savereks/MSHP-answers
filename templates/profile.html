@@ -10,12 +10,13 @@
 
       <!-- Avatar -->
       <div class="avatar-wrap">
-        {% if user.profile.avatar.url %}
+        {% if user.profile.avatar %}
           <img class="avatar-circle" src="{{ user.profile.avatar.url }}" alt="Profile picture">
         {% else %}
-          <img class="avatar-circle" src="profile_pics/default.jpg"  alt="Profile picture">
+          <div class="avatar-placeholder">{{ user.username|first|upper }}</div>
         {% endif %}
       </div>
+
 
       <div class="profile-name-row">
         <span class="profile-username">{{ user.username }}</span>

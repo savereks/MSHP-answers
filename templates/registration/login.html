@@ -1,21 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Вход{% endblock %}
 {% block content %}
+<div class="form-page-wrapper">
+  <div class="form-card">
     <h1>Вход</h1>
     {% if form.errors %}
-        <p>
-            Ваше имя пользователя и пароль не совпадают.
-            Пожалуйста, попробуйте еще раз.
-        </p>
+      <div class="form-error">
+        Имя пользователя и пароль не совпадают. Попробуйте ещё раз.
+      </div>
     {% else %}
-        <p> Пожалуйста, создайте аккаунт, если его ещё не существует <a href="{% url 'register' %}">Зарегистрироваться</a></p>
+      <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
     {% endif %}
-    <div class="login-form">
-        <form action="{% url 'login' %}" method="post">
-            {{ form.as_p }}
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ next }}"/>
-            <p><input type="submit" value="Войти"></p>
-        </form>
-    </div>
+    <form action="{% url 'login' %}" method="post">
+      {{ form.as_p }}
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}"/>
+      <input type="submit" value="Войти">
+    </form>
+  </div>
+</div>
 {% endblock %}

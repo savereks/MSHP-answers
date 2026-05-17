@@ -1,9 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <form action="/create_question/" method="post">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit">
-  </form>
+<div class="form-page-wrapper">
+  <div class="form-card">
+    <h2>Задать вопрос</h2>
+    <p>Опишите вопрос как можно подробнее</p>
+    <form action="/create_question/" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="Опубликовать">
+    </form>
+  </div>
+</div>
 {% endblock %}
