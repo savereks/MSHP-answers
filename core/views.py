@@ -48,7 +48,7 @@ def main(request):
     avatar_by_user = {}
     if author_ids:
         for img in ProfileImage.objects.filter(user_id__in=author_ids).select_related('user'):
-            if ProfileImage.avatar:
+            if img.avatar:
                 avatar_by_user[img.user_id] = img.avatar.url
 
     for question in questions:
