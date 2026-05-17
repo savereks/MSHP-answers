@@ -1,3 +1,4 @@
+import logging
 from core.models import Question, Answer, ProfileImage, Vote, Tag, User
 from core.forms import Question_Form, Search_Form, AnswerForm, UserRegistrationForm, ProfileForm
 from django.http import HttpResponse, JsonResponse
@@ -8,6 +9,8 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, UserRegistrationForm
 from django.db import models
+
+logger = logging.getLogger(__name__)
 
 
 def general_context(request):
@@ -23,6 +26,7 @@ def general_context(request):
         if "title_search" in request.POST:
             title_search = request.POST.get('title_search')
             questions = Question.objects.filter(title__contains=title_search)
+            logger.info(f"Поиск по запросу: '{title_search}', найдено: {questions.count()}")
             context.update({"questions" : questions})
     if request.user.is_authenticated:
         context['menu'].append(['Профиль', f'/accounts/profile/{request.user.id}'])
@@ -33,6 +37,7 @@ def general_context(request):
 
 
 def main(request):
+    logger.info(f"Главная страница открыта пользователем: {request.user}")
     context = {}
     context.update(general_context(request))
 
@@ -60,14 +65,17 @@ def main(request):
             models.Q(title__icontains=search_query) |
             models.Q(text__icontains=search_query)
         )
+        logger.info(f"Поиск через GET: '{search_query}'")
 
     # Фильтрация по тегам
     if selected_tags:
         for tag_slug in selected_tags:
             qs = qs.filter(tags=tag_slug)
         qs = qs.distinct()
+        logger.debug(f"Фильтрация по тегам: {selected_tags}")
 
     questions = list(qs)
+    logger.debug(f"Загружено вопросов: {len(questions)}")
     author_ids = {q.author_id for q in questions if q.author_id}
     avatar_by_user = {}
 
@@ -101,6 +109,7 @@ def vote_question(request, question_id):
     elif raw == 'dislike':
         vote_type = False
     else:
+        logger.warning(f"Неправильный голос: '{raw}' от пользователя {request.user}")
         return JsonResponse({'error': 'invalid vote'}, status=400)
 
     Vote.objects.update_or_create(
@@ -108,6 +117,8 @@ def vote_question(request, question_id):
         question=question,
         defaults={'vote_type': vote_type, 'answer': None},
     )
+
+    logger.info(f"Пользователь {request.user.username} {'лайкнул' if vote_type else 'дизлайкнул'} вопрос {question_id}")
 
     qvotes = Vote.objects.filter(question=question, answer__isnull=True)
     likes = qvotes.filter(vote_type=True).count()
@@ -132,6 +143,7 @@ def create_question(request):
         )
 
         new_question.save()
+        logger.info(f"Пользователь {author.username} создал вопрос: '{title}' (ID: {new_question.id})")
 
         for tag in tags:
             new_question.tags.add(Tag.objects.get(id=tag))
@@ -160,11 +172,13 @@ def question(request, question_id):
                 author=request.user
             )
             answer.save()
+            logger.info(f"Пользователь {request.user.username} добавил ответ на вопрос {question_id}")
         return redirect(f'/question/{question_id}/')
     elif request.method == 'GET':
         question = Question.objects.get(id=question_id)
         answers = Answer.objects.filter(question=question)
         answer_form = AnswerForm()
+        logger.debug(f"Открыт вопрос {question_id}, ответов: {answers.count()}")
         context = {
             'question': question,
             'answers': answers,
@@ -180,6 +194,7 @@ def profile(request, profile_id):
 
     user = User.objects.get(id=profile_id)
     profile, created = ProfileImage.objects.get_or_create(user=user)
+    logger.debug(f"Открыт профиль пользователя: {user.username}")
 
     context = {
         'user': user,
@@ -196,6 +211,7 @@ def edit_profile(request):
         form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if form.is_valid():
             form.save()
+            logger.info(f"Пользователь {request.user.username} обновил профиль")
             return redirect('profile', profile_id=request.user.id)
     else:
         form = ProfileForm(instance=request.user.profile)
@@ -216,10 +232,13 @@ def user_login(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
+                    logger.info(f"Пользователь вошёл: {user.username}")
                     return redirect(f'/accounts/profile/{user.id}')
                 else:
+                    logger.warning(f"Попытка входа в заблокированный аккаунт: {cd['username']}")
                     return HttpResponse('Disabled account')
             else:
+                logger.warning(f"Неудачная попытка входа для пользователя: {cd['username']}")
                 return HttpResponse('Invalid login')
     else:
         form = LoginForm()
@@ -235,6 +254,7 @@ def register(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            logger.info(f"Новый пользователь зарегистрирован: {user.username}")
 
             login(request, user)
 
@@ -257,6 +277,7 @@ def my_questions(request):
         .prefetch_related('tags')
         .order_by('-created_at')
     )
+    logger.debug(f"Пользователь {user.username} открыл свои вопросы, найдено: {user_questions.count()}")
     context = {
         'user': user,
         'questions': user_questions,
