@@ -175,3 +175,5 @@ LOGGING = {
         },
     },
 }
+
+FIXTURE_DIRS = ['fixtures']

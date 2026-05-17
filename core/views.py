@@ -81,7 +81,7 @@ def main(request):
 
     if author_ids:
         for img in ProfileImage.objects.filter(user_id__in=author_ids).select_related('user'):
-            if ProfileImage.avatar:
+            if img.avatar:
                 avatar_by_user[img.user_id] = img.avatar.url
 
     for question in questions:
@@ -90,7 +90,7 @@ def main(request):
         question.dislikes = qvotes.filter(vote_type=False).count()
         question.rating = question.likes - question.dislikes
         aid = question.author_id
-        question.author_avatar_url = avatar_by_user.get(aid, '/media/avatars/default.png')
+        question.author_avatar_url = avatar_by_user.get(aid, '/media/profile_pics/default.jpg')
 
     context['questions'] = questions
     context['all_tags'] = all_tags
