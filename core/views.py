@@ -174,11 +174,13 @@ def question(request, question_id):
             answer.save()
             logger.info(f"Пользователь {request.user.username} добавил ответ на вопрос {question_id}")
         return redirect(f'/question/{question_id}/')
+
     elif request.method == 'GET':
         question = Question.objects.get(id=question_id)
-        answers = Answer.objects.filter(question=question)
+        answers = Answer.objects.filter(question=question).select_related('author__profile')
         answer_form = AnswerForm()
         logger.debug(f"Открыт вопрос {question_id}, ответов: {answers.count()}")
+
         context = {
             'question': question,
             'answers': answers,

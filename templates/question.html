@@ -93,6 +93,39 @@
   .question-page .qp-answer:last-child {
     margin-bottom: 0;
   }
+
+  /* ── Аватарка и заголовок ответа ── */
+  .question-page .qp-answer-header {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.35rem;
+  }
+  .question-page .qp-avatar-link {
+    border-bottom: none !important;
+    flex-shrink: 0;
+  }
+  .question-page .qp-avatar-link:hover {
+    border-bottom: none !important;
+  }
+  .question-page .qp-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    border: 1.5px solid var(--qp-border);
+  }
+  .question-page .qp-avatar--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.75rem;
+    border: none;
+  }
   .question-page .qp-answer h3 {
     margin: 0 0 0.35rem;
     font-size: 0.9375rem;
@@ -109,6 +142,7 @@
     font-size: 0.75rem;
     color: var(--qp-muted);
   }
+
   .question-page .qp-form-wrap {
     background: var(--qp-surface);
     border: 1px solid var(--qp-border);
@@ -195,13 +229,21 @@
       <ul class="qp-answers">
         {% for answer in answers %}
           <li class="qp-answer">
-            <h3>
+            <div class="qp-answer-header">
               {% if answer.author %}
-                <a href="{% url 'profile' answer.author.id %}">{{ answer.author.username }}</a>
+                <a href="{% url 'profile' answer.author.id %}" class="qp-avatar-link">
+                  {% if answer.author.profile.avatar %}
+                    <img src="{{ answer.author.profile.avatar.url }}" alt="" class="qp-avatar">
+                  {% else %}
+                    <div class="qp-avatar qp-avatar--placeholder">{{ answer.author.username|first|upper }}</div>
+                  {% endif %}
+                </a>
+                <h3><a href="{% url 'profile' answer.author.id %}">{{ answer.author.username }}</a></h3>
               {% else %}
-                <span>Неизвестный автор</span>
+                <div class="qp-avatar qp-avatar--placeholder">?</div>
+                <h3><span>Неизвестный автор</span></h3>
               {% endif %}
-            </h3>
+            </div>
             <p class="qp-answer-text">{{ answer.text }}</p>
             <time datetime="{{ answer.created_at|date:'c' }}">{{ answer.created_at|date:"d.m.Y H:i" }}</time>
           </li>
