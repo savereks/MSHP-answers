@@ -25,7 +25,7 @@ import core.views as cv
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', main),
+    path('', main, name='main'),
     path('accounts/profile/<int:profile_id>/', cv.profile, name='profile'),
     path('accounts/profile/edit/', cv.edit_profile, name='edit_profile'),
     path('accounts/login/', cv.user_login, name='login'),

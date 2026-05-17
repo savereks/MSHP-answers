@@ -12,7 +12,7 @@ class Tag(models.Model):
 
 
 class ProfileImage(models.Model):
-    avatar = models.ImageField(upload_to='profile_pics/', default='profile_pics/default.png', blank=True)
+    avatar = models.ImageField(upload_to='profile_pics/', default='profile_pics/default.jpg', blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField(max_length=500, blank=True)
 
@@ -71,9 +71,3 @@ class Comment(models.Model):
     def __str__(self):
         return self.text
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
-    bio = models.TextField(blank=True, default='')
-
-    def __str__(self):
-        return f'Profile of {self.user.username}'
