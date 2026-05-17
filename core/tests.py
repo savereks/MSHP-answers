@@ -37,7 +37,7 @@ class MainPageUser(TestCase):
         self.assertEqual(self.response.status_code, 200)
         self.assertContains(self.response, "<title>МШП Ответы</title>")
         self.assertEqual(self.response.context["menu"][1], ['Профиль', f'/accounts/profile/{self.user.id}'])
-        self.assertIn('form', self.response.context)
+        self.assertIn('sform', self.response.context)
 
     def test_search_bar_success(self):
         self.response = self.client.post("", {"title_search":"Привет!"})
