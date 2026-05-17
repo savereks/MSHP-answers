@@ -82,7 +82,7 @@
             {% if question.tags.all %}
             <div class="question-card__tags">
               {% for tag in question.tags.all %}
-                <a href="?tags={{ tag.slug }}" class="q-tag">{{ tag.name }}</a>
+                <a href="?tags={{ tag.id }}" class="q-tag">{{ tag.name }}</a>
               {% endfor %}
             </div>
             {% endif %}
@@ -116,8 +116,8 @@
               <label class="tag-checkbox {% if tag.slug in selected_tags %}active{% endif %}">
                 <input type="checkbox"
                        name="tags"
-                       value="{{ tag.slug }}"
-                       {% if tag.slug in selected_tags %}checked{% endif %}>
+                       value="{{ tag.id }}"
+                       {% if tag.id in selected_tags %} checked {% endif %}>
                 <span class="tag-name">{{ tag.name }}</span>
               </label>
             {% endfor %}

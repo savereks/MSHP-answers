@@ -172,7 +172,7 @@
       {% if question.author %}
         <a href="{% url 'profile' question.author.id %}">{{ question.author.username }}</a>
         {% if author_avatar_url %}
-          <img class="avatar-circle avatar-circle--sm" src="{{ author_avatar_url }}" alt="">
+          <img class="avatar-circle avatar-circle--sm" src="{{ question.author.profile.avatar.url }}" alt="">
         {% endif %}
       {% else %}
         <span>Неизвестный автор</span>
