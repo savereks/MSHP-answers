@@ -1,3 +1,4 @@
+import logging
 from core.models import Question, Answer, ProfileImage, Vote, Tag, User
 from core.forms import Question_Form, Search_Form, AnswerForm, UserRegistrationForm, ProfileForm
 from django.http import HttpResponse, JsonResponse
@@ -7,7 +8,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, UserRegistrationForm
+from django.db.models import Count
 from django.db import models
+
+logger = logging.getLogger(__name__)
 
 
 def general_context(request):
@@ -23,6 +27,7 @@ def general_context(request):
         if "title_search" in request.POST:
             title_search = request.POST.get('title_search')
             questions = Question.objects.filter(title__contains=title_search)
+            logger.info(f"Поиск по запросу: '{title_search}', найдено: {questions.count()}")
             context.update({"questions" : questions})
     if request.user.is_authenticated:
         context['menu'].append(['Профиль', f'/accounts/profile/{request.user.id}'])
@@ -33,6 +38,7 @@ def general_context(request):
 
 
 def main(request):
+    logger.info(f"Главная страница открыта пользователем: {request.user}")
     context = {}
     context.update(general_context(request))
 
@@ -60,20 +66,23 @@ def main(request):
             models.Q(title__icontains=search_query) |
             models.Q(text__icontains=search_query)
         )
+        logger.info(f"Поиск через GET: '{search_query}'")
 
     # Фильтрация по тегам
     if selected_tags:
         for tag_slug in selected_tags:
             qs = qs.filter(tags=tag_slug)
         qs = qs.distinct()
+        logger.debug(f"Фильтрация по тегам: {selected_tags}")
 
     questions = list(qs)
+    logger.debug(f"Загружено вопросов: {len(questions)}")
     author_ids = {q.author_id for q in questions if q.author_id}
     avatar_by_user = {}
 
     if author_ids:
         for img in ProfileImage.objects.filter(user_id__in=author_ids).select_related('user'):
-            if ProfileImage.avatar:
+            if img.avatar:
                 avatar_by_user[img.user_id] = img.avatar.url
 
     for question in questions:
@@ -82,7 +91,7 @@ def main(request):
         question.dislikes = qvotes.filter(vote_type=False).count()
         question.rating = question.likes - question.dislikes
         aid = question.author_id
-        question.author_avatar_url = avatar_by_user.get(aid, '/media/avatars/default.png')
+        question.author_avatar_url = avatar_by_user.get(aid, '/media/profile_pics/default.jpg')
 
     context['questions'] = questions
     context['all_tags'] = all_tags
@@ -101,6 +110,7 @@ def vote_question(request, question_id):
     elif raw == 'dislike':
         vote_type = False
     else:
+        logger.warning(f"Неправильный голос: '{raw}' от пользователя {request.user}")
         return JsonResponse({'error': 'invalid vote'}, status=400)
 
     Vote.objects.update_or_create(
@@ -109,12 +119,50 @@ def vote_question(request, question_id):
         defaults={'vote_type': vote_type, 'answer': None},
     )
 
+    logger.info(f"Пользователь {request.user.username} {'лайкнул' if vote_type else 'дизлайкнул'} вопрос {question_id}")
+
     qvotes = Vote.objects.filter(question=question, answer__isnull=True)
     likes = qvotes.filter(vote_type=True).count()
     dislikes = qvotes.filter(vote_type=False).count()
     return JsonResponse(
         {'likes': likes, 'dislikes': dislikes, 'rating': likes - dislikes}
     )
+
+
+@login_required(login_url='/accounts/login/')
+@require_POST
+def vote_answer(request, answer_id):
+    """Голосование за ответ """
+    answer = get_object_or_404(Answer, pk=answer_id)
+    raw = request.POST.get('vote', '')
+
+    if raw == 'like':
+        vote_type = True
+    elif raw == 'dislike':
+        vote_type = False
+    else:
+        logger.warning(f"Неправильный голос за ответ: '{raw}' от пользователя {request.user}")
+        return JsonResponse({'error': 'invalid vote'}, status=400)
+
+    # Обновляем или создаем голос
+    Vote.objects.update_or_create(
+        user=request.user,
+        answer=answer,
+        defaults={'vote_type': vote_type},
+    )
+
+    logger.info(f"Пользователь {request.user.username} {'лайкнул' if vote_type else 'дизлайкнул'} ответ {answer_id}")
+
+    # Подсчитываем голоса
+    answer_votes = Vote.objects.filter(answer=answer)
+    likes = answer_votes.filter(vote_type=True).count()
+    dislikes = answer_votes.filter(vote_type=False).count()
+
+    return JsonResponse({
+        'likes': likes,
+        'dislikes': dislikes,
+        'rating': likes - dislikes
+    })
 
 
 @login_required(login_url='/accounts/login/')
@@ -132,6 +180,7 @@ def create_question(request):
         )
 
         new_question.save()
+        logger.info(f"Пользователь {author.username} создал вопрос: '{title}' (ID: {new_question.id})")
 
         for tag in tags:
             new_question.tags.add(Tag.objects.get(id=tag))
@@ -152,7 +201,7 @@ def create_question(request):
 def question(request, question_id):
     if request.method == 'POST':
         answer_form = AnswerForm(request.POST)
-        if answer_form.is_valid():
+        if answer_form.is_valid() and request.user.is_authenticated:
             question = Question.objects.get(id=question_id)
             answer = Answer(
                 question=question,
@@ -160,11 +209,44 @@ def question(request, question_id):
                 author=request.user
             )
             answer.save()
+            logger.info(f"Пользователь {request.user.username} добавил ответ на вопрос {question_id}")
         return redirect(f'/question/{question_id}/')
+
     elif request.method == 'GET':
         question = Question.objects.get(id=question_id)
-        answers = Answer.objects.filter(question=question)
+
+        # Рассчитываем рейтинг вопроса
+        qvotes = Vote.objects.filter(question=question, answer__isnull=True)
+        question.likes = qvotes.filter(vote_type=True).count()
+        question.dislikes = qvotes.filter(vote_type=False).count()
+        question.rating = question.likes - question.dislikes
+
+        # Получаем аватар автора
+        if question.author:
+            profile = ProfileImage.objects.filter(user=question.author).first()
+            question.author_avatar_url = profile.avatar.url if profile and profile.avatar else '/media/profile_pics/default.jpg'
+        else:
+            question.author_avatar_url = '/media/profile_pics/default.jpg'
+
+        answers = Answer.objects.filter(question=question).select_related('author__profile')
+
+        # Рассчитываем рейтинг для каждого ответа
+        for answer in answers:
+            avotes = Vote.objects.filter(answer=answer)
+            answer.likes = avotes.filter(vote_type=True).count()
+            answer.dislikes = avotes.filter(vote_type=False).count()
+            answer.rating = answer.likes - answer.dislikes
+
+            # Получаем аватар автора ответа
+            if answer.author:
+                profile = ProfileImage.objects.filter(user=answer.author).first()
+                answer.author_avatar_url = profile.avatar.url if profile and profile.avatar else '/media/profile_pics/default.jpg'
+            else:
+                answer.author_avatar_url = '/media/profile_pics/default.jpg'
+
         answer_form = AnswerForm()
+        logger.debug(f"Открыт вопрос {question_id}, ответов: {answers.count()}")
+
         context = {
             'question': question,
             'answers': answers,
@@ -180,6 +262,7 @@ def profile(request, profile_id):
 
     user = User.objects.get(id=profile_id)
     profile, created = ProfileImage.objects.get_or_create(user=user)
+    logger.debug(f"Открыт профиль пользователя: {user.username}")
 
     context = {
         'user': user,
@@ -196,6 +279,7 @@ def edit_profile(request):
         form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if form.is_valid():
             form.save()
+            logger.info(f"Пользователь {request.user.username} обновил профиль")
             return redirect('profile', profile_id=request.user.id)
     else:
         form = ProfileForm(instance=request.user.profile)
@@ -216,10 +300,13 @@ def user_login(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
+                    logger.info(f"Пользователь вошёл: {user.username}")
                     return redirect(f'/accounts/profile/{user.id}')
                 else:
+                    logger.warning(f"Попытка входа в заблокированный аккаунт: {cd['username']}")
                     return HttpResponse('Disabled account')
             else:
+                logger.warning(f"Неудачная попытка входа для пользователя: {cd['username']}")
                 return HttpResponse('Invalid login')
     else:
         form = LoginForm()
@@ -235,6 +322,7 @@ def register(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            logger.info(f"Новый пользователь зарегистрирован: {user.username}")
 
             login(request, user)
 
@@ -251,15 +339,39 @@ def register(request):
 
 @login_required(login_url='/accounts/login/')
 def my_questions(request):
+    """Показывает вопросы пользователя и его ответы на чужие вопросы"""
     user = request.user
+
+    # Вопросы пользователя с количеством ответов
     user_questions = (
         Question.objects.filter(author=user)
         .prefetch_related('tags')
+        .annotate(answers_count=Count('answer'))
         .order_by('-created_at')
     )
+
+    # Ответы пользователя на чужие вопросы
+    user_answers = (
+        Answer.objects.filter(author=user)
+        .select_related('question', 'question__author')
+        .prefetch_related('question__tags')
+        .order_by('-created_at')
+    )
+
+    # Добавляем рейтинг для каждого ответа
+    for answer in user_answers:
+        answer_votes = Vote.objects.filter(answer=answer)
+        answer.likes = answer_votes.filter(vote_type=True).count()
+        answer.dislikes = answer_votes.filter(vote_type=False).count()
+        answer.rating = answer.likes - answer.dislikes
+
+    logger.debug(
+        f"Пользователь {user.username} открыл свои вопросы и ответы: найдено вопросов - {user_questions.count()}, ответов - {user_answers.count()}")
+
     context = {
         'user': user,
         'questions': user_questions,
+        'answers': user_answers,
     }
     context.update(general_context(request))
     return render(request, 'my-questions.html', context)

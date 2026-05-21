@@ -500,4 +500,70 @@ body {
   .question-card__rating {
     padding: 0 4px;
   }
+
+    .avatar-circle--xs,
+    .avatar-placeholder--xs {
+      width: 32px;
+      height: 32px;
+      border-width: 2px;
+    }
+
+    .avatar-placeholder--xs {
+      font-size: 0.85rem;
+      letter-spacing: 0;
+    }
+
+    /* Стили для кнопок в голосовании */
+    .vote-btn--up svg,
+    .vote-btn--down svg {
+      pointer-events: none;
+    }
+
+    .vote-btn--up:active svg,
+    .vote-btn--down:active svg {
+      transform: scale(0.9);
+    }
+
+    /* Стили для форм */
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      transition: border-color var(--transition);
+    }
+
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Кнопки */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 24px;
+      border-radius: var(--radius-full);
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all var(--transition);
+      border: none;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
 }
