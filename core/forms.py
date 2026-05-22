@@ -59,11 +59,21 @@ class UserRegistrationForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = ProfileImage
-        fields = ('avatar', 'bio')
+        fields = ['avatar', 'bio']
         widgets = {
-            'bio': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Расскажите о себе'}),
+            'bio': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Расскажите о себе...'
+            }),
+            'avatar': forms.FileInput(attrs={
+                'accept': 'image/*'
+            })
         }
         labels = {
-            'avatar': 'Аватарка',
-            'bio': 'О себе',
+            'avatar': 'Загрузить новую аватарку',
+            'bio': 'О себе'
+        }
+        help_texts = {
+            'avatar': 'Поддерживаемые форматы: JPG, PNG, GIF. Максимальный размер: 5MB',
+            'bio': 'Максимум 500 символов'
         }

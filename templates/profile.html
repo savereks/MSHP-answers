@@ -17,7 +17,6 @@
         {% endif %}
       </div>
 
-
       <div class="profile-name-row">
         <span class="profile-username">{{ user.username }}</span>
         {% if user.is_staff %}
@@ -30,7 +29,7 @@
             <a href="{% url 'edit_profile' %}" class="btn-edit">Редактировать профиль</a>
           {% endif %}
         {% else %}
-          <p>Вы не авторизованы</p>
+          <p class="profile-login-prompt">Вы не авторизованы</p>
         {% endif %}
       </div>
 
@@ -65,47 +64,95 @@
         {% endif %}
       </div>
 
-        <!-- Bio -->
+      <!-- Bio -->
       {% if user.profile.bio %}
-                <p class="profile-bio">{{ user.profile.bio }}</p>
-            {% else %}
-                <p class="profile-bio-empty">Пользователь ещё не заполнил информацию о себе</p>
-            {% endif %}
+        <p class="profile-bio">{{ user.profile.bio }}</p>
+      {% else %}
+        <p class="profile-bio-empty">Пользователь ещё не заполнил информацию о себе</p>
+      {% endif %}
 
       <div class="divider"></div>
 
+      {% if request.user == user %}
+        <p class="section-heading">Быстрые действия</p>
+        <div class="action-grid">
+          <a href="{% url 'my-questions' %}" class="action-card">
+            <div class="action-card-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <div class="action-card-text">
+              <span class="action-card-label">Мои вопросы</span>
+              <span class="action-card-sub">Посмотреть историю</span>
+            </div>
+          </a>
 
-      <p class="section-heading">Быстрые действия</p>
-      <div class="action-grid">
-        <a href="{% url 'my-questions' %}" class="action-card">
-          <div class="action-card-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-              <line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
-          </div>
-          <div class="action-card-text">
-            <span class="action-card-label">Мои вопросы</span>
-            <span class="action-card-sub">Посмотреть историю</span>
-          </div>
-        </a>
-
-        <a href="/create_question" class="action-card">
-          <div class="action-card-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-          </div>
-          <div class="action-card-text">
-            <span class="action-card-label">Задать вопрос</span>
-            <span class="action-card-sub">Новый вопрос</span>
-          </div>
-        </a>
-      </div>
-
+          <a href="{% url 'create_question' %}" class="action-card">
+            <div class="action-card-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+            <div class="action-card-text">
+              <span class="action-card-label">Задать вопрос</span>
+              <span class="action-card-sub">Новый вопрос</span>
+            </div>
+          </a>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>
+
+<style>
+/* Дополнительные стили для страницы профиля */
+.btn-edit {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  text-decoration: none;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all var(--transition);
+  margin-left: 12px;
+}
+
+.btn-edit:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.profile-login-prompt {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-left: 12px;
+}
+
+.profile-bio {
+  background: var(--surface-2);
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  margin: 16px 0;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.profile-bio-empty {
+  background: var(--surface-2);
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  margin: 16px 0;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+}
+</style>
 {% endblock %}

@@ -301,15 +301,20 @@ def user_login(request):
                 if user.is_active:
                     login(request, user)
                     logger.info(f"Пользователь вошёл: {user.username}")
+
+                    next_url = request.POST.get('next')
+                    if next_url:
+                        return redirect(next_url)
                     return redirect(f'/accounts/profile/{user.id}')
                 else:
                     logger.warning(f"Попытка входа в заблокированный аккаунт: {cd['username']}")
-                    return HttpResponse('Disabled account')
+                    form.add_error(None, 'Учётная запись заблокирована')
             else:
                 logger.warning(f"Неудачная попытка входа для пользователя: {cd['username']}")
-                return HttpResponse('Invalid login')
+                form.add_error(None, 'Неверное имя пользователя или пароль')
     else:
         form = LoginForm()
+
     context = {
         'form': form
     }
