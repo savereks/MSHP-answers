@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from core.views import main, create_question, edit_profile
+from core.views import main, create_question, edit_profile, vote_answer
 from django.contrib.auth.views import LogoutView
 from django.urls import path
 from django.conf import settings
@@ -33,8 +33,9 @@ urlpatterns = [
     path('accounts/logout/', LogoutView.as_view(), name='logout'),
     path('my-questions/', cv.my_questions, name='my-questions'),
     path('create_question/', create_question),
-    path('question/<int:question_id>/', cv.question),
+    path('question/<int:question_id>/', cv.question, name='question'),
     path('question/<int:question_id>/vote/',cv.vote_question,name='vote_question',),
+    path('answer/<int:answer_id>/vote/', cv.vote_answer, name='vote_answer'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

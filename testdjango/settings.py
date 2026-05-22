@@ -129,6 +129,9 @@ LOGOUT_REDIRECT_URL = "/"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
 
 LOGGING = {
     'version': 1,
@@ -149,7 +152,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/app.log'),
+            'filename': os.path.join(LOGS_DIR, 'debug.log'),
             'formatter': 'verbose',
         },
         'console': {

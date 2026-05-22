@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, UserRegistrationForm
+from django.db.models import Count
 from django.db import models
 
 logger = logging.getLogger(__name__)
@@ -129,6 +130,42 @@ def vote_question(request, question_id):
 
 
 @login_required(login_url='/accounts/login/')
+@require_POST
+def vote_answer(request, answer_id):
+    """Голосование за ответ """
+    answer = get_object_or_404(Answer, pk=answer_id)
+    raw = request.POST.get('vote', '')
+
+    if raw == 'like':
+        vote_type = True
+    elif raw == 'dislike':
+        vote_type = False
+    else:
+        logger.warning(f"Неправильный голос за ответ: '{raw}' от пользователя {request.user}")
+        return JsonResponse({'error': 'invalid vote'}, status=400)
+
+    # Обновляем или создаем голос
+    Vote.objects.update_or_create(
+        user=request.user,
+        answer=answer,
+        defaults={'vote_type': vote_type},
+    )
+
+    logger.info(f"Пользователь {request.user.username} {'лайкнул' if vote_type else 'дизлайкнул'} ответ {answer_id}")
+
+    # Подсчитываем голоса
+    answer_votes = Vote.objects.filter(answer=answer)
+    likes = answer_votes.filter(vote_type=True).count()
+    dislikes = answer_votes.filter(vote_type=False).count()
+
+    return JsonResponse({
+        'likes': likes,
+        'dislikes': dislikes,
+        'rating': likes - dislikes
+    })
+
+
+@login_required(login_url='/accounts/login/')
 def create_question(request):
     if request.method == "POST":
         title = request.POST.get('title')
@@ -164,7 +201,7 @@ def create_question(request):
 def question(request, question_id):
     if request.method == 'POST':
         answer_form = AnswerForm(request.POST)
-        if answer_form.is_valid():
+        if answer_form.is_valid() and request.user.is_authenticated:
             question = Question.objects.get(id=question_id)
             answer = Answer(
                 question=question,
@@ -177,7 +214,36 @@ def question(request, question_id):
 
     elif request.method == 'GET':
         question = Question.objects.get(id=question_id)
+
+        # Рассчитываем рейтинг вопроса
+        qvotes = Vote.objects.filter(question=question, answer__isnull=True)
+        question.likes = qvotes.filter(vote_type=True).count()
+        question.dislikes = qvotes.filter(vote_type=False).count()
+        question.rating = question.likes - question.dislikes
+
+        # Получаем аватар автора
+        if question.author:
+            profile = ProfileImage.objects.filter(user=question.author).first()
+            question.author_avatar_url = profile.avatar.url if profile and profile.avatar else '/media/profile_pics/default.jpg'
+        else:
+            question.author_avatar_url = '/media/profile_pics/default.jpg'
+
         answers = Answer.objects.filter(question=question).select_related('author__profile')
+
+        # Рассчитываем рейтинг для каждого ответа
+        for answer in answers:
+            avotes = Vote.objects.filter(answer=answer)
+            answer.likes = avotes.filter(vote_type=True).count()
+            answer.dislikes = avotes.filter(vote_type=False).count()
+            answer.rating = answer.likes - answer.dislikes
+
+            # Получаем аватар автора ответа
+            if answer.author:
+                profile = ProfileImage.objects.filter(user=answer.author).first()
+                answer.author_avatar_url = profile.avatar.url if profile and profile.avatar else '/media/profile_pics/default.jpg'
+            else:
+                answer.author_avatar_url = '/media/profile_pics/default.jpg'
+
         answer_form = AnswerForm()
         logger.debug(f"Открыт вопрос {question_id}, ответов: {answers.count()}")
 
@@ -273,16 +339,39 @@ def register(request):
 
 @login_required(login_url='/accounts/login/')
 def my_questions(request):
+    """Показывает вопросы пользователя и его ответы на чужие вопросы"""
     user = request.user
+
+    # Вопросы пользователя с количеством ответов
     user_questions = (
         Question.objects.filter(author=user)
         .prefetch_related('tags')
+        .annotate(answers_count=Count('answer'))
         .order_by('-created_at')
     )
-    logger.debug(f"Пользователь {user.username} открыл свои вопросы, найдено: {user_questions.count()}")
+
+    # Ответы пользователя на чужие вопросы
+    user_answers = (
+        Answer.objects.filter(author=user)
+        .select_related('question', 'question__author')
+        .prefetch_related('question__tags')
+        .order_by('-created_at')
+    )
+
+    # Добавляем рейтинг для каждого ответа
+    for answer in user_answers:
+        answer_votes = Vote.objects.filter(answer=answer)
+        answer.likes = answer_votes.filter(vote_type=True).count()
+        answer.dislikes = answer_votes.filter(vote_type=False).count()
+        answer.rating = answer.likes - answer.dislikes
+
+    logger.debug(
+        f"Пользователь {user.username} открыл свои вопросы и ответы: найдено вопросов - {user_questions.count()}, ответов - {user_answers.count()}")
+
     context = {
         'user': user,
         'questions': user_questions,
+        'answers': user_answers,
     }
     context.update(general_context(request))
     return render(request, 'my-questions.html', context)
