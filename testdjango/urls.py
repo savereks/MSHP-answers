@@ -36,6 +36,8 @@ urlpatterns = [
     path('question/<int:question_id>/', cv.question, name='question'),
     path('question/<int:question_id>/vote/',cv.vote_question,name='vote_question',),
     path('answer/<int:answer_id>/vote/', cv.vote_answer, name='vote_answer'),
+    path('answer/<int:answer_id>/comment/', cv.add_comment, name='add_comment'),
+    path('comment/<int:comment_id>/vote/', cv.vote_comment, name='vote_comment'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

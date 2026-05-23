@@ -8,14 +8,49 @@ class AnswerForm(forms.Form):
     text = forms.CharField(widget=forms.Textarea)
 
 
+class CommentForm(forms.Form):
+    text = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'rows': 3,
+            'placeholder': 'Напишите комментарий...',
+            'class': 'comment-textarea'
+        }),
+        label=''
+    )
+
+
 class LoginForm(forms.Form):
-    username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput)
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Введите имя пользователя'
+        })
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Введите пароль'
+        })
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].label = 'Имя пользователя'
         self.fields['password'].label = 'Пароль'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
+        password = cleaned_data.get('password')
+
+        # Дополнительная валидация
+        if username and password:
+            from django.contrib.auth import authenticate
+            user = authenticate(username=username, password=password)
+            if not user:
+                raise forms.ValidationError('Неверное имя пользователя или пароль')
+        return cleaned_data
 
 
 class Question_Form(forms.Form):

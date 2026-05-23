@@ -1,15 +1,14 @@
 import logging
-from core.models import Question, Answer, ProfileImage, Vote, User
-from core.forms import Question_Form, Search_Form, AnswerForm, UserRegistrationForm, ProfileForm
+from core.models import Question, Answer, ProfileImage, Vote, User, Comment
+from core.forms import Question_Form, Search_Form, AnswerForm, UserRegistrationForm, ProfileForm, CommentForm
 from core.constants import ALL_TAGS, get_all_tags, get_tag_by_id
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, UserRegistrationForm
-from django.db.models import Count
 from django.db import models
 
 logger = logging.getLogger(__name__)
@@ -46,7 +45,7 @@ def main(request):
     # Получаем все теги из констант
     all_tags = ALL_TAGS
 
-    # Получаем выбранные теги (как строки, преобразуем в int)
+    # Получаем выбранные теги
     selected_tags = [int(tag) for tag in request.GET.getlist('tags') if tag]
 
     # Получаем поисковый запрос
@@ -68,7 +67,7 @@ def main(request):
         )
         logger.info(f"Поиск через GET: '{search_query}'")
 
-    # Фильтрация по тегам (проверяем, содержит ли поле tags выбранные теги)
+    # Фильтрация по тегам
     if selected_tags:
         for tag_id in selected_tags:
             tag = get_tag_by_id(tag_id)
@@ -122,7 +121,8 @@ def vote_question(request, question_id):
     existing_vote = Vote.objects.filter(
         user=request.user,
         question=question,
-        answer__isnull=True
+        answer__isnull=True,
+        comment__isnull=True
     ).first()
 
     if existing_vote:
@@ -140,7 +140,8 @@ def vote_question(request, question_id):
 
     logger.info(f"Пользователь {request.user.username} {'лайкнул' if vote_type else 'дизлайкнул'} вопрос {question_id}")
 
-    qvotes = Vote.objects.filter(question=question, answer__isnull=True)
+    # Подсчитываем голоса только за вопрос
+    qvotes = Vote.objects.filter(question=question, answer__isnull=True, comment__isnull=True)
     likes = qvotes.filter(vote_type=True).count()
     dislikes = qvotes.filter(vote_type=False).count()
     return JsonResponse(
@@ -164,7 +165,11 @@ def vote_answer(request, answer_id):
         return JsonResponse({'error': 'invalid vote'}, status=400)
 
     # Проверяем существующий голос
-    existing_vote = Vote.objects.filter(user=request.user, answer=answer).first()
+    existing_vote = Vote.objects.filter(
+        user=request.user,
+        answer=answer,
+        comment__isnull=True
+    ).first()
 
     if existing_vote:
         if existing_vote.vote_type == vote_type:
@@ -181,10 +186,77 @@ def vote_answer(request, answer_id):
 
     logger.info(f"Пользователь {request.user.username} {'лайкнул' if vote_type else 'дизлайкнул'} ответ {answer_id}")
 
-    # Подсчитываем голоса
-    answer_votes = Vote.objects.filter(answer=answer)
+    # Подсчитываем голоса только за ответ
+    answer_votes = Vote.objects.filter(answer=answer, comment__isnull=True)
     likes = answer_votes.filter(vote_type=True).count()
     dislikes = answer_votes.filter(vote_type=False).count()
+
+    return JsonResponse({
+        'likes': likes,
+        'dislikes': dislikes,
+        'rating': likes - dislikes
+    })
+
+
+@login_required(login_url='/accounts/login/')
+@require_POST
+def add_comment(request, answer_id):
+    """Добавление комментария к ответу"""
+    answer = get_object_or_404(Answer, pk=answer_id)
+    form = CommentForm(request.POST)
+
+    if form.is_valid():
+        comment = Comment(
+            text=form.cleaned_data['text'],
+            author=request.user,
+            answer=answer
+        )
+        comment.save()
+        logger.info(f"Пользователь {request.user.username} добавил комментарий к ответу {answer_id}")
+
+    return redirect(f'/question/{answer.question.id}/')
+
+
+@login_required(login_url='/accounts/login/')
+@require_POST
+def vote_comment(request, comment_id):
+    """Голосование за комментарий"""
+    comment = get_object_or_404(Comment, pk=comment_id)
+    raw = request.POST.get('vote', '')
+
+    if raw == 'like':
+        vote_type = True
+    elif raw == 'dislike':
+        vote_type = False
+    else:
+        logger.warning(f"Неправильный голос за комментарий: '{raw}' от пользователя {request.user}")
+        return JsonResponse({'error': 'invalid vote'}, status=400)
+
+    # Проверяем существующий голос
+    existing_vote = Vote.objects.filter(
+        user=request.user,
+        comment=comment
+    ).first()
+
+    if existing_vote:
+        if existing_vote.vote_type == vote_type:
+            existing_vote.delete()
+        else:
+            existing_vote.vote_type = vote_type
+            existing_vote.save()
+    else:
+        Vote.objects.create(
+            user=request.user,
+            comment=comment,
+            vote_type=vote_type
+        )
+
+    logger.info(f"Пользователь {request.user.username} {'лайкнул' if vote_type else 'дизлайкнул'} комментарий {comment_id}")
+
+    # Подсчитываем голоса
+    comment_votes = Vote.objects.filter(comment=comment)
+    likes = comment_votes.filter(vote_type=True).count()
+    dislikes = comment_votes.filter(vote_type=False).count()
 
     return JsonResponse({
         'likes': likes,
@@ -198,17 +270,16 @@ def create_question(request):
     if request.method == "POST":
         title = request.POST.get('title')
         text = request.POST.get('text')
-        tags = request.POST.getlist('tags')  # Список ID тегов
+        tags = request.POST.getlist('tags')
         author = request.user
 
-        # Сохраняем теги как строку с разделителями
         tags_str = ','.join(tags) if tags else ''
 
         new_question = Question(
             title=title,
             text=text,
             author=author,
-            tags=tags_str  # Сохраняем как строку
+            tags=tags_str
         )
 
         new_question.save()
@@ -243,7 +314,7 @@ def question(request, question_id):
         question = Question.objects.get(id=question_id)
 
         # Рассчитываем рейтинг вопроса
-        qvotes = Vote.objects.filter(question=question, answer__isnull=True)
+        qvotes = Vote.objects.filter(question=question, answer__isnull=True, comment__isnull=True)
         question.likes = qvotes.filter(vote_type=True).count()
         question.dislikes = qvotes.filter(vote_type=False).count()
         question.rating = question.likes - question.dislikes
@@ -255,15 +326,16 @@ def question(request, question_id):
         else:
             question.author_avatar_url = '/media/profile_pics/default.jpg'
 
-        # Преобразуем теги вопроса в объекты для шаблона
-        question_tags_ids = [int(t) for t in question.tags.split(',') if t]
+        # Преобразуем теги вопроса
+        question_tags_ids = [int(t) for t in question.tags.split(',') if t] if hasattr(question, 'tags') else []
         question.tag_objects = [get_tag_by_id(tag_id) for tag_id in question_tags_ids if get_tag_by_id(tag_id)]
 
         answers = Answer.objects.filter(question=question).select_related('author__profile')
 
-        # Рассчитываем рейтинг для каждого ответа
+        # Рассчитываем рейтинг для каждого ответа и загружаем комментарии
         for answer in answers:
-            avotes = Vote.objects.filter(answer=answer)
+            # Рейтинг ответа (только голоса за ответ, без комментариев)
+            avotes = Vote.objects.filter(answer=answer, comment__isnull=True)
             answer.likes = avotes.filter(vote_type=True).count()
             answer.dislikes = avotes.filter(vote_type=False).count()
             answer.rating = answer.likes - answer.dislikes
@@ -275,13 +347,32 @@ def question(request, question_id):
             else:
                 answer.author_avatar_url = '/media/profile_pics/default.jpg'
 
+            # Загружаем комментарии к ответу
+            answer.comments = Comment.objects.filter(answer=answer).select_related('author__profile').order_by('created_at')
+
+            # Рассчитываем рейтинг для каждого комментария
+            for comment in answer.comments:
+                comment_votes = Vote.objects.filter(comment=comment)
+                comment.likes = comment_votes.filter(vote_type=True).count()
+                comment.dislikes = comment_votes.filter(vote_type=False).count()
+                comment.rating = comment.likes - comment.dislikes
+
+                # Получаем аватар автора комментария
+                if comment.author:
+                    profile = ProfileImage.objects.filter(user=comment.author).first()
+                    comment.author_avatar_url = profile.avatar.url if profile and profile.avatar else '/media/profile_pics/default.jpg'
+                else:
+                    comment.author_avatar_url = '/media/profile_pics/default.jpg'
+
         answer_form = AnswerForm()
+        comment_form = CommentForm()
         logger.debug(f"Открыт вопрос {question_id}, ответов: {answers.count()}")
 
         context = {
             'question': question,
             'answers': answers,
-            'answer_form': answer_form
+            'answer_form': answer_form,
+            'comment_form': comment_form,
         }
         context.update(general_context(request))
         return render(request, 'question.html', context)
