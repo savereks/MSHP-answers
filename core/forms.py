@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
-from core.models import Tag, ProfileImage
+from core.models import ProfileImage
+from core.constants import ALL_TAGS
 
 
 class AnswerForm(forms.Form):
@@ -18,9 +19,14 @@ class LoginForm(forms.Form):
 
 
 class Question_Form(forms.Form):
-    title = forms.CharField(max_length=200)
-    text = forms.CharField(max_length=1024, widget=forms.Textarea)
-    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple)
+    title = forms.CharField(max_length=200, label='Заголовок')
+    text = forms.CharField(max_length=1024, widget=forms.Textarea, label='Текст вопроса')
+    tags = forms.MultipleChoiceField(
+        choices=[(tag['id'], tag['name']) for tag in ALL_TAGS],
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label='Теги'
+    )
 
 
 class Search_Form(forms.Form):

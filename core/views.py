@@ -1,6 +1,7 @@
 import logging
-from core.models import Question, Answer, ProfileImage, Vote, Tag, User
+from core.models import Question, Answer, ProfileImage, Vote, User
 from core.forms import Question_Form, Search_Form, AnswerForm, UserRegistrationForm, ProfileForm
+from core.constants import ALL_TAGS, get_all_tags, get_tag_by_id
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
@@ -28,7 +29,7 @@ def general_context(request):
             title_search = request.POST.get('title_search')
             questions = Question.objects.filter(title__contains=title_search)
             logger.info(f"Поиск по запросу: '{title_search}', найдено: {questions.count()}")
-            context.update({"questions" : questions})
+            context.update({"questions": questions})
     if request.user.is_authenticated:
         context['menu'].append(['Профиль', f'/accounts/profile/{request.user.id}'])
     else:
@@ -42,21 +43,20 @@ def main(request):
     context = {}
     context.update(general_context(request))
 
-    # Получаем все теги для фильтра
-    all_tags = Tag.objects.all().order_by('name')
+    # Получаем все теги из констант
+    all_tags = ALL_TAGS
 
-    # Получаем выбранные теги
-    selected_tags = [tag for tag in request.GET.getlist('tags') if tag]
+    # Получаем выбранные теги (как строки, преобразуем в int)
+    selected_tags = [int(tag) for tag in request.GET.getlist('tags') if tag]
 
     # Получаем поисковый запрос
     search_query = request.GET.get('q', '').strip()
 
     if 'questions' in context:
-        qs = context['questions'].select_related('author').prefetch_related('tags')
+        qs = context['questions'].select_related('author')
     else:
         qs = (
             Question.objects.select_related('author')
-            .prefetch_related('tags')
             .order_by('-created_at')
         )
 
@@ -68,11 +68,12 @@ def main(request):
         )
         logger.info(f"Поиск через GET: '{search_query}'")
 
-    # Фильтрация по тегам
+    # Фильтрация по тегам (проверяем, содержит ли поле tags выбранные теги)
     if selected_tags:
-        for tag_slug in selected_tags:
-            qs = qs.filter(tags=tag_slug)
-        qs = qs.distinct()
+        for tag_id in selected_tags:
+            tag = get_tag_by_id(tag_id)
+            if tag:
+                qs = qs.filter(tags__contains=str(tag_id))
         logger.debug(f"Фильтрация по тегам: {selected_tags}")
 
     questions = list(qs)
@@ -92,6 +93,10 @@ def main(request):
         question.rating = question.likes - question.dislikes
         aid = question.author_id
         question.author_avatar_url = avatar_by_user.get(aid, '/media/profile_pics/default.jpg')
+
+        # Преобразуем строку тегов в список объектов для шаблона
+        question_tags_ids = [int(t) for t in question.tags.split(',') if t]
+        question.tag_objects = [get_tag_by_id(tag_id) for tag_id in question_tags_ids if get_tag_by_id(tag_id)]
 
     context['questions'] = questions
     context['all_tags'] = all_tags
@@ -113,11 +118,25 @@ def vote_question(request, question_id):
         logger.warning(f"Неправильный голос: '{raw}' от пользователя {request.user}")
         return JsonResponse({'error': 'invalid vote'}, status=400)
 
-    Vote.objects.update_or_create(
+    # Проверяем существующий голос
+    existing_vote = Vote.objects.filter(
         user=request.user,
         question=question,
-        defaults={'vote_type': vote_type, 'answer': None},
-    )
+        answer__isnull=True
+    ).first()
+
+    if existing_vote:
+        if existing_vote.vote_type == vote_type:
+            existing_vote.delete()
+        else:
+            existing_vote.vote_type = vote_type
+            existing_vote.save()
+    else:
+        Vote.objects.create(
+            user=request.user,
+            question=question,
+            vote_type=vote_type
+        )
 
     logger.info(f"Пользователь {request.user.username} {'лайкнул' if vote_type else 'дизлайкнул'} вопрос {question_id}")
 
@@ -144,12 +163,21 @@ def vote_answer(request, answer_id):
         logger.warning(f"Неправильный голос за ответ: '{raw}' от пользователя {request.user}")
         return JsonResponse({'error': 'invalid vote'}, status=400)
 
-    # Обновляем или создаем голос
-    Vote.objects.update_or_create(
-        user=request.user,
-        answer=answer,
-        defaults={'vote_type': vote_type},
-    )
+    # Проверяем существующий голос
+    existing_vote = Vote.objects.filter(user=request.user, answer=answer).first()
+
+    if existing_vote:
+        if existing_vote.vote_type == vote_type:
+            existing_vote.delete()
+        else:
+            existing_vote.vote_type = vote_type
+            existing_vote.save()
+    else:
+        Vote.objects.create(
+            user=request.user,
+            answer=answer,
+            vote_type=vote_type
+        )
 
     logger.info(f"Пользователь {request.user.username} {'лайкнул' if vote_type else 'дизлайкнул'} ответ {answer_id}")
 
@@ -170,22 +198,21 @@ def create_question(request):
     if request.method == "POST":
         title = request.POST.get('title')
         text = request.POST.get('text')
-        tags = request.POST.getlist('tags')
+        tags = request.POST.getlist('tags')  # Список ID тегов
         author = request.user
+
+        # Сохраняем теги как строку с разделителями
+        tags_str = ','.join(tags) if tags else ''
 
         new_question = Question(
             title=title,
             text=text,
-            author=author
+            author=author,
+            tags=tags_str  # Сохраняем как строку
         )
 
         new_question.save()
-        logger.info(f"Пользователь {author.username} создал вопрос: '{title}' (ID: {new_question.id})")
-
-        for tag in tags:
-            new_question.tags.add(Tag.objects.get(id=tag))
-
-        new_question.save()
+        logger.info(f"Пользователь {author.username} создал вопрос: '{title}' (ID: {new_question.id}) с тегами: {tags}")
 
         return redirect('/')
 
@@ -227,6 +254,10 @@ def question(request, question_id):
             question.author_avatar_url = profile.avatar.url if profile and profile.avatar else '/media/profile_pics/default.jpg'
         else:
             question.author_avatar_url = '/media/profile_pics/default.jpg'
+
+        # Преобразуем теги вопроса в объекты для шаблона
+        question_tags_ids = [int(t) for t in question.tags.split(',') if t]
+        question.tag_objects = [get_tag_by_id(tag_id) for tag_id in question_tags_ids if get_tag_by_id(tag_id)]
 
         answers = Answer.objects.filter(question=question).select_related('author__profile')
 
@@ -274,7 +305,6 @@ def profile(request, profile_id):
 
 @login_required
 def edit_profile(request):
-
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if form.is_valid():
@@ -350,16 +380,20 @@ def my_questions(request):
     # Вопросы пользователя с количеством ответов
     user_questions = (
         Question.objects.filter(author=user)
-        .prefetch_related('tags')
-        .annotate(answers_count=Count('answer'))
         .order_by('-created_at')
     )
+
+    # Добавляем количество ответов к каждому вопросу
+    for question in user_questions:
+        question.answers_count = Answer.objects.filter(question=question).count()
+        # Преобразуем теги
+        question_tags_ids = [int(t) for t in question.tags.split(',') if t]
+        question.tag_objects = [get_tag_by_id(tag_id) for tag_id in question_tags_ids if get_tag_by_id(tag_id)]
 
     # Ответы пользователя на чужие вопросы
     user_answers = (
         Answer.objects.filter(author=user)
         .select_related('question', 'question__author')
-        .prefetch_related('question__tags')
         .order_by('-created_at')
     )
 

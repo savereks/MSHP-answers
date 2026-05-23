@@ -4,11 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
-class Tag(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-
-    def __str__(self):
-        return self.name
+# Удаляем модель Tag - больше не нужна
 
 
 class ProfileImage(models.Model):
@@ -33,7 +29,17 @@ class Question(models.Model):
     text = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    tags = models.ManyToManyField(Tag, blank=True, related_name='tags')
+    tags = models.CharField(max_length=500, blank=True, default='')
+
+    def get_tags_list(self):
+        """Возвращает список тегов вопроса"""
+        if self.tags:
+            return self.tags.split(',')
+        return []
+
+    def set_tags_list(self, tags_list):
+        """Устанавливает теги из списка"""
+        self.tags = ','.join(tags_list) if tags_list else ''
 
     def __str__(self):
         return self.title
@@ -70,4 +76,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text
-

@@ -79,12 +79,12 @@
             </div>
             <a class="question-card__title" href="/question/{{ question.id }}/">{{ question.title }}</a>
             <p class="question-card__date">{{ question.created_at|date:"d.m.Y H:i" }}</p>
-            {% if question.tags.all %}
-            <div class="question-card__tags">
-              {% for tag in question.tags.all %}
-                <a href="?tags={{ tag.id }}" class="q-tag">{{ tag.name }}</a>
-              {% endfor %}
-            </div>
+            {% if question.tag_objects %}
+              <div class="question-card__tags">
+                {% for tag in question.tag_objects %}
+                  <a href="?tags={{ tag.id }}" class="q-tag">{{ tag.name }}</a>
+                {% endfor %}
+              </div>
             {% endif %}
           </div>
         </article>
