@@ -378,17 +378,110 @@ def question(request, question_id):
         return render(request, 'question.html', context)
 
 
+def get_user_rating(user):
+    """Подсчёт общего рейтинга пользователя"""
+    # Рейтинг от вопросов
+    questions_rating = 0
+    for question in Question.objects.filter(author=user):
+        qvotes = Vote.objects.filter(question=question, answer__isnull=True, comment__isnull=True)
+        likes = qvotes.filter(vote_type=True).count()
+        dislikes = qvotes.filter(vote_type=False).count()
+        questions_rating += (likes - dislikes)
+
+    # Рейтинг от ответов
+    answers_rating = 0
+    for answer in Answer.objects.filter(author=user):
+        avotes = Vote.objects.filter(answer=answer, comment__isnull=True)
+        likes = avotes.filter(vote_type=True).count()
+        dislikes = avotes.filter(vote_type=False).count()
+        answers_rating += (likes - dislikes)
+
+    # Рейтинг от комментариев
+    comments_rating = 0
+    for comment in Comment.objects.filter(author=user):
+        cvotes = Vote.objects.filter(comment=comment)
+        likes = cvotes.filter(vote_type=True).count()
+        dislikes = cvotes.filter(vote_type=False).count()
+        comments_rating += (likes - dislikes)
+
+    return questions_rating + answers_rating + comments_rating
+
+
+@login_required(login_url='/accounts/login/')
+@require_POST
+def delete_question(request, question_id):
+    """Удаление вопроса (только для администратора или автора)"""
+    question = get_object_or_404(Question, pk=question_id)
+
+    # Проверяем права: администратор или автор вопроса
+    if request.user.is_staff or request.user == question.author:
+        question_title = question.title
+        question.delete()
+        logger.info(f"Пользователь {request.user.username} удалил вопрос: '{question_title}' (ID: {question_id})")
+        return JsonResponse({'success': True, 'message': 'Вопрос успешно удалён'})
+    else:
+        logger.warning(f"Пользователь {request.user.username} попытался удалить вопрос {question_id} без прав")
+        return JsonResponse({'success': False, 'message': 'У вас нет прав для удаления этого вопроса'}, status=403)
+
+
 @login_required(login_url='/accounts/login/')
 def profile(request, profile_id):
-    """ Показывает страницу профиля с именем пользователя"""
+    """ Показывает страницу профиля с именем пользователя и рейтингом"""
 
     user = User.objects.get(id=profile_id)
     profile, created = ProfileImage.objects.get_or_create(user=user)
-    logger.debug(f"Открыт профиль пользователя: {user.username}")
+
+    # Подсчитываем рейтинг пользователя
+    total_rating = 0
+
+    # Рейтинг от вопросов
+    questions_rating = 0
+    for question in Question.objects.filter(author=user):
+        qvotes = Vote.objects.filter(question=question, answer__isnull=True, comment__isnull=True)
+        likes = qvotes.filter(vote_type=True).count()
+        dislikes = qvotes.filter(vote_type=False).count()
+        questions_rating += (likes - dislikes)
+
+    # Рейтинг от ответов
+    answers_rating = 0
+    for answer in Answer.objects.filter(author=user):
+        avotes = Vote.objects.filter(answer=answer, comment__isnull=True)
+        likes = avotes.filter(vote_type=True).count()
+        dislikes = avotes.filter(vote_type=False).count()
+        answers_rating += (likes - dislikes)
+
+    # Рейтинг от комментариев
+    comments_rating = 0
+    for comment in Comment.objects.filter(author=user):
+        cvotes = Vote.objects.filter(comment=comment)
+        likes = cvotes.filter(vote_type=True).count()
+        dislikes = cvotes.filter(vote_type=False).count()
+        comments_rating += (likes - dislikes)
+
+    total_rating = questions_rating + answers_rating + comments_rating
+
+    # Количество вопросов
+    questions_count = Question.objects.filter(author=user).count()
+
+    # Количество ответов
+    answers_count = Answer.objects.filter(author=user).count()
+
+    # Количество комментариев
+    comments_count = Comment.objects.filter(author=user).count()
+
+    logger.debug(f"Открыт профиль пользователя: {user.username}, рейтинг: {total_rating}")
 
     context = {
         'user': user,
         'profile': profile,
+        'total_rating': total_rating,
+        'questions_rating': questions_rating,
+        'answers_rating': answers_rating,
+        'comments_rating': comments_rating,
+        'questions_count': questions_count,
+        'answers_count': answers_count,
+        'comments_count': comments_count,
+        'is_admin': request.user.is_staff,
     }
     context.update(general_context(request))
     return render(request, 'profile.html', context)

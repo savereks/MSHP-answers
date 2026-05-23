@@ -33,6 +33,41 @@
         {% endif %}
       </div>
 
+      <!-- Рейтинг пользователя -->
+      <div class="profile-rating">
+        <div class="rating-stats">
+          <div class="rating-item rating-total">
+            <span class="rating-value {% if total_rating >= 0 %}rating-positive{% else %}rating-negative{% endif %}">
+              {{ total_rating }}
+            </span>
+            <span class="rating-label">Общий рейтинг</span>
+          </div>
+          <div class="rating-stats-grid">
+            <div class="rating-stat">
+              <span class="stat-value">{{ questions_count }}</span>
+              <span class="stat-label">Вопросов</span>
+              <span class="stat-rating {% if questions_rating >= 0 %}rating-positive{% else %}rating-negative{% endif %}">
+                {{ questions_rating }}
+              </span>
+            </div>
+            <div class="rating-stat">
+              <span class="stat-value">{{ answers_count }}</span>
+              <span class="stat-label">Ответов</span>
+              <span class="stat-rating {% if answers_rating >= 0 %}rating-positive{% else %}rating-negative{% endif %}">
+                {{ answers_rating }}
+              </span>
+            </div>
+            <div class="rating-stat">
+              <span class="stat-value">{{ comments_count }}</span>
+              <span class="stat-label">Комментариев</span>
+              <span class="stat-rating {% if comments_rating >= 0 %}rating-positive{% else %}rating-negative{% endif %}">
+                {{ comments_rating }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Meta info -->
       <div class="profile-meta">
         {% if user.email %}
@@ -136,6 +171,80 @@
   margin-left: 12px;
 }
 
+/* Стили для рейтинга пользователя */
+.profile-rating {
+  margin: 20px 0;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--surface) 100%);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.rating-stats {
+  text-align: center;
+}
+
+.rating-total {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rating-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  display: block;
+  line-height: 1;
+}
+
+.rating-positive {
+  color: #15803d;
+}
+
+.rating-negative {
+  color: #b91c1c;
+}
+
+.rating-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.rating-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.rating-stat {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: block;
+  margin: 4px 0;
+}
+
+.stat-rating {
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+}
+
 .profile-bio {
   background: var(--surface-2);
   padding: 16px;
@@ -153,6 +262,16 @@
   color: var(--text-muted);
   font-style: italic;
   text-align: center;
+}
+
+@media (max-width: 560px) {
+  .rating-stats-grid {
+    gap: 8px;
+  }
+
+  .stat-value {
+    font-size: 1rem;
+  }
 }
 </style>
 {% endblock %}

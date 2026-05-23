@@ -86,6 +86,18 @@
                 {% endfor %}
               </div>
             {% endif %}
+
+            <!-- Кнопка удаления для администратора -->
+            {% if user.is_authenticated and user.is_staff %}
+              <div class="question-card__admin-actions">
+                <button type="button" class="delete-question-admin" data-question-id="{{ question.id }}" data-question-title="{{ question.title }}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                  Удалить
+                </button>
+              </div>
+            {% endif %}
           </div>
         </article>
         {% empty %}
@@ -113,7 +125,7 @@
 
           <div class="tags-cloud">
             {% for tag in all_tags %}
-              <label class="tag-checkbox {% if tag.slug in selected_tags %}active{% endif %}">
+              <label class="tag-checkbox {% if tag.id|stringformat:'s' in selected_tags|stringformat:'s' %}active{% endif %}">
                 <input type="checkbox"
                        name="tags"
                        value="{{ tag.id }}"
@@ -133,36 +145,6 @@
     </aside>
   </div>
 </div>
-
-<script>
-(function () {
-  var token = document.querySelector('[name=csrfmiddlewaretoken]');
-  if (!token) return;
-  function vote(card, value) {
-    var id = card.getAttribute('data-question-id');
-    fetch('/question/' + id + '/vote/', {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': token.value,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: 'vote=' + encodeURIComponent(value),
-      credentials: 'same-origin',
-    }).then(function (r) { return r.json(); }).then(function (data) {
-      if (data.rating == null) return;
-      var el = card.querySelector('.q-rating');
-      if (el) el.textContent = data.rating;
-    });
-  }
-  document.querySelectorAll('.question-card[data-question-id]').forEach(function (card) {
-    var like = card.querySelector('.q-like');
-    var dislike = card.querySelector('.q-dislike');
-    if (like) like.onclick = function () { vote(card, 'like'); };
-    if (dislike) dislike.onclick = function () { vote(card, 'dislike'); };
-  });
-})();
-
-</script>
 
 <style>
 .feed-layout {
@@ -410,6 +392,66 @@
   transform: translateY(-1px);
 }
 
+/* Кнопка удаления для администратора на главной странице */
+.question-card__admin-actions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.delete-question-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #b91c1c;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.delete-question-admin:hover {
+  background: #fecaca;
+  transform: translateY(-1px);
+}
+
+/* Уведомления */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+}
+
+.notification-success {
+  background: #15803d;
+}
+
+.notification-error {
+  background: #b91c1c;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   .feed-layout {
@@ -436,4 +478,77 @@
   }
 }
 </style>
+
+<script>
+(function () {
+  var token = document.querySelector('[name=csrfmiddlewaretoken]');
+  if (!token) return;
+
+  function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+  }
+
+  function vote(card, value) {
+    var id = card.getAttribute('data-question-id');
+    fetch('/question/' + id + '/vote/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': token.value,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'vote=' + encodeURIComponent(value),
+      credentials: 'same-origin',
+    }).then(function (r) { return r.json(); }).then(function (data) {
+      if (data.rating == null) return;
+      var el = card.querySelector('.q-rating');
+      if (el) el.textContent = data.rating;
+    });
+  }
+
+  document.querySelectorAll('.question-card[data-question-id]').forEach(function (card) {
+    var like = card.querySelector('.q-like');
+    var dislike = card.querySelector('.q-dislike');
+    if (like) like.onclick = function () { vote(card, 'like'); };
+    if (dislike) dislike.onclick = function () { vote(card, 'dislike'); };
+  });
+
+  // Удаление вопроса администратором
+  document.querySelectorAll('.delete-question-admin').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      var questionId = this.getAttribute('data-question-id');
+      var questionTitle = this.getAttribute('data-question-title');
+
+      if (confirm('Вы уверены, что хотите удалить вопрос "' + questionTitle + '"? Это действие нельзя отменить.')) {
+        fetch('/question/' + questionId + '/delete/', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': token.value,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          credentials: 'same-origin',
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+          if (data.success) {
+            var questionCard = btn.closest('.question-card');
+            if (questionCard) questionCard.remove();
+            showNotification('Вопрос успешно удалён', 'success');
+          } else {
+            showNotification(data.message || 'Ошибка при удалении вопроса', 'error');
+          }
+        })
+        .catch(function(error) {
+          console.error('Error:', error);
+          showNotification('Произошла ошибка при удалении вопроса', 'error');
+        });
+      }
+    });
+  });
+})();
+</script>
 {% endblock %}
