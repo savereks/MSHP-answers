@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 
 from core.constants import ALL_TAGS, get_tag_by_id
 from core.forms import (
-    Question_Form, Search_Form, AnswerForm, UserRegistrationForm,
+    QuestionForm, SearchForm, AnswerForm, UserRegistrationForm,
     ProfileForm, CommentForm, LoginForm
 )
 from core.models import Question, Answer, ProfileImage, Vote, User, Comment
@@ -32,7 +32,7 @@ def general_context(request):
     Returns:
         dict: Словарь с общим контекстом для шаблонов
     """
-    search_form = Search_Form()
+    search_form = SearchForm()
     context = {
         "menu": [["Задать вопрос", "/create_question"]],
         'sform': search_form
@@ -410,7 +410,7 @@ def create_question(request):
         return redirect('/')
 
     # GET запрос - отображение формы
-    form = Question_Form()
+    form = QuestionForm()
     context = {'form': form}
     context.update(general_context(request))
 
