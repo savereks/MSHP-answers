@@ -1,3 +1,9 @@
+"""
+Формы для основного приложения.
+
+Содержит все формы для обработки пользовательского ввода.
+"""
+
 from django import forms
 from django.contrib.auth.models import User
 from core.models import ProfileImage
@@ -5,10 +11,12 @@ from core.constants import ALL_TAGS
 
 
 class AnswerForm(forms.Form):
+    """Форма для добавления ответа на вопрос."""
     text = forms.CharField(widget=forms.Textarea)
 
 
 class CommentForm(forms.Form):
+    """Форма для добавления комментария к ответу."""
     text = forms.CharField(
         widget=forms.Textarea(attrs={
             'rows': 3,
@@ -20,6 +28,7 @@ class CommentForm(forms.Form):
 
 
 class LoginForm(forms.Form):
+    """Форма для аутентификации пользователя."""
     username = forms.CharField(
         max_length=150,
         widget=forms.TextInput(attrs={
@@ -35,16 +44,17 @@ class LoginForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        """Инициализация формы с установкой меток полей."""
         super().__init__(*args, **kwargs)
         self.fields['username'].label = 'Имя пользователя'
         self.fields['password'].label = 'Пароль'
 
     def clean(self):
+        """Валидация формы входа."""
         cleaned_data = super().clean()
         username = cleaned_data.get('username')
         password = cleaned_data.get('password')
 
-        # Дополнительная валидация
         if username and password:
             from django.contrib.auth import authenticate
             user = authenticate(username=username, password=password)
@@ -53,9 +63,14 @@ class LoginForm(forms.Form):
         return cleaned_data
 
 
-class Question_Form(forms.Form):
+class QuestionForm(forms.Form):
+    """Форма для создания нового вопроса."""
     title = forms.CharField(max_length=200, label='Заголовок')
-    text = forms.CharField(max_length=1024, widget=forms.Textarea, label='Текст вопроса')
+    text = forms.CharField(
+        max_length=1024,
+        widget=forms.Textarea,
+        label='Текст вопроса'
+    )
     tags = forms.MultipleChoiceField(
         choices=[(tag['id'], tag['name']) for tag in ALL_TAGS],
         widget=forms.CheckboxSelectMultiple,
@@ -64,11 +79,13 @@ class Question_Form(forms.Form):
     )
 
 
-class Search_Form(forms.Form):
+class SearchForm(forms.Form):
+    """Форма для поиска вопросов."""
     title_search = forms.CharField(max_length=200)
 
 
 class UserRegistrationForm(forms.ModelForm):
+    """Форма для регистрации нового пользователя."""
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Repeat password', widget=forms.PasswordInput)
     email = forms.EmailField(required=True)
@@ -78,6 +95,7 @@ class UserRegistrationForm(forms.ModelForm):
         fields = ('username', 'email', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
+        """Инициализация формы с установкой меток полей."""
         super().__init__(*args, **kwargs)
         self.fields['username'].label = 'Имя пользователя'
         self.fields['email'].label = 'Email'
@@ -85,19 +103,33 @@ class UserRegistrationForm(forms.ModelForm):
         self.fields['password2'].label = 'Подтверждение пароля'
 
     def clean_password2(self):
+        """Проверка совпадения паролей."""
         cd = self.cleaned_data
         if cd['password1'] != cd['password2']:
             raise forms.ValidationError('Пароли не совпадают')
         return cd['password2']
 
     def clean_email(self):
+        """Проверка уникальности email."""
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('Этот email уже используется')
         return email
 
+    def save(self, commit=True):
+        """Сохранение пользователя с хэшированием пароля."""
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password1'])
+        user.email = self.cleaned_data['email']
+
+        if commit:
+            user.save()
+        return user
+
 
 class ProfileForm(forms.ModelForm):
+    """Форма для редактирования профиля пользователя."""
+
     class Meta:
         model = ProfileImage
         fields = ['avatar', 'bio']
