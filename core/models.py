@@ -1,13 +1,20 @@
+"""
+Модели данных для основного приложения.
+Содержит все модели для работы с базой данных.
+"""
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
-# Удаляем модель Tag - больше не нужна
-
-
 class ProfileImage(models.Model):
+    """
+    Модель профиля пользователя.
+    Хранит аватар и биографию.
+    """
+    objects = None
     avatar = models.ImageField(upload_to='profile_pics/', default='profile_pics/default.jpg', blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField(max_length=500, blank=True)
@@ -15,16 +22,26 @@ class ProfileImage(models.Model):
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
+    """
+    Автоматическое создание профиля при регистрации пользователя.
+    """
     if created:
         ProfileImage.objects.create(user=instance)
 
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
+    """
+    Автоматическое сохранение профиля при сохранении пользователя.
+    """
     instance.profile.save()
 
 
 class Question(models.Model):
+    """
+    Модель вопроса.
+    Содержит заголовок, текст, автора, дату создания и теги.
+    """
     title = models.CharField(max_length=200)
     text = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -46,6 +63,11 @@ class Question(models.Model):
 
 
 class Vote(models.Model):
+    """
+    Модель голосования.
+    Универсальная модель для вопросов, ответов и комментариев.
+    """
+    objects = None
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, null=True, blank=True)
     answer = models.ForeignKey('Answer', on_delete=models.CASCADE, null=True, blank=True)
@@ -58,6 +80,9 @@ class Vote(models.Model):
 
 
 class Answer(models.Model):
+    """
+    Модель ответа на вопрос.
+    """
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     text = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -69,6 +94,9 @@ class Answer(models.Model):
 
 
 class Comment(models.Model):
+    """
+    Модель комментария к ответу.
+    """
     text = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, null=True, blank=True)
