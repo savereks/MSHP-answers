@@ -22,23 +22,13 @@ logger = logging.getLogger(__name__)
 
 
 def general_context(request):
-    """
-    Создаёт общий контекст для всех страниц.
-    Включает меню навигации и форму поиска.
-
-    Args:
-        request: HTTP запрос
-
-    Returns:
-        dict: Словарь с общим контекстом для шаблонов
-    """
+    """Создаёт общий контекст для всех страниц."""
     search_form = SearchForm()
     context = {
         "menu": [["Задать вопрос", "/create_question"]],
         'sform': search_form
     }
 
-    # Обработка POST запроса поиска
     if request.method == "POST" and "title_search" in request.POST:
         title_search = request.POST.get('title_search')
         questions = Question.objects.filter(title__contains=title_search)
@@ -47,7 +37,6 @@ def general_context(request):
         )
         context.update({"questions": questions})
 
-    # Добавление пунктов меню в зависимости от статуса аутентификации
     if request.user.is_authenticated:
         context['menu'].append(
             ['Профиль', f'/accounts/profile/{request.user.id}']
@@ -59,32 +48,113 @@ def general_context(request):
     return context
 
 
+def get_user_role(user):
+    """
+    Определяет роль пользователя на основе рейтинга.
+    Возвращает: 'admin', 'trusted', 'user'
+    """
+    if user.is_staff:
+        return 'admin'
+
+    # Рассчёт рейтинга пользователя
+    total_rating = 0
+    for question in Question.objects.filter(author=user):
+        question_votes = Vote.objects.filter(
+            question=question, answer__isnull=True, comment__isnull=True
+        )
+        likes = question_votes.filter(vote_type=True).count()
+        dislikes = question_votes.filter(vote_type=False).count()
+        total_rating += (likes - dislikes)
+
+    for answer in Answer.objects.filter(author=user):
+        answer_votes = Vote.objects.filter(answer=answer, comment__isnull=True)
+        likes = answer_votes.filter(vote_type=True).count()
+        dislikes = answer_votes.filter(vote_type=False).count()
+        total_rating += (likes - dislikes)
+
+    for comment in Comment.objects.filter(author=user):
+        comment_votes = Vote.objects.filter(comment=comment)
+        likes = comment_votes.filter(vote_type=True).count()
+        dislikes = comment_votes.filter(vote_type=False).count()
+        total_rating += (likes - dislikes)
+
+    if total_rating >= 10:
+        return 'trusted'
+    return 'user'
+
+
+def can_delete_content(user, content_author):
+    """
+    Проверяет, может ли пользователь удалить контент.
+    - Администратор может удалять любые вопросы
+    - Доверенный участник (рейтинг ≥ 10) может удалять любые вопросы
+    - Обычный пользователь может удалять только свои вопросы
+    """
+    if user.is_staff:
+        return True
+
+    if get_user_role(user) == 'trusted':
+        return True
+
+    return user == content_author
+
+
+def can_create_content(user):
+    """
+    Проверяет, может ли пользователь создавать контент (не заблокирован).
+    """
+    try:
+        profile = ProfileImage.objects.get(user=user)
+        return not profile.is_blocked
+    except ProfileImage.DoesNotExist:
+        return True
+
+
+@login_required(login_url='/accounts/login/')
+@require_POST
+def toggle_block_user(request, user_id):
+    """
+    Блокировка/разблокировка пользователя (только для администратора).
+    """
+    if not request.user.is_staff:
+        return JsonResponse({
+            'success': False,
+            'message': 'Недостаточно прав'
+        }, status=403)
+
+    target_user = get_object_or_404(User, pk=user_id)
+    profile, _ = ProfileImage.objects.get_or_create(user=target_user)
+    profile.is_blocked = not profile.is_blocked
+    profile.save()
+
+    status_text = "заблокирован" if profile.is_blocked else "разблокирован"
+    logger.info(
+        f"Администратор {request.user.username} "
+        f"{status_text} пользователя {target_user.username}"
+    )
+
+    return JsonResponse({
+        'success': True,
+        'is_blocked': profile.is_blocked,
+        'message': f'Пользователь {status_text}'
+    })
+
+
 def main(request):
-    """
-    Главная страница со списком вопросов, поиском и фильтрацией по тегам.
-
-    Args:
-        request: HTTP запрос
-
-    Returns:
-        HttpResponse: Рендеринг главной страницы
-    """
+    """Главная страница со списком вопросов."""
     logger.info(f"Главная страница открыта пользователем: {request.user}")
     context = {}
     context.update(general_context(request))
 
-    # Получение параметров фильтрации
     all_tags = ALL_TAGS
     selected_tags = [int(tag) for tag in request.GET.getlist('tags') if tag]
     search_query = request.GET.get('q', '').strip()
 
-    # Формирование базового запроса
     if 'questions' in context:
         queryset = context['questions'].select_related('author')
     else:
         queryset = Question.objects.select_related('author').order_by('-created_at')
 
-    # Применение поиска по тексту
     if search_query:
         queryset = queryset.filter(
             models.Q(title__icontains=search_query) |
@@ -92,7 +162,6 @@ def main(request):
         )
         logger.info(f"Поиск через GET: '{search_query}'")
 
-    # Применение фильтрации по тегам
     if selected_tags:
         for tag_id in selected_tags:
             tag = get_tag_by_id(tag_id)
@@ -103,7 +172,6 @@ def main(request):
     questions = list(queryset)
     logger.debug(f"Загружено вопросов: {len(questions)}")
 
-    # Загрузка аватаров авторов
     author_ids = {q.author_id for q in questions if q.author_id}
     avatar_by_user = {}
 
@@ -114,7 +182,6 @@ def main(request):
             if img.avatar:
                 avatar_by_user[img.user_id] = img.avatar.url
 
-    # Расчёт рейтинга и добавление тегов для каждого вопроса
     for question in questions:
         question_votes = Vote.objects.filter(
             question=question, answer__isnull=True, comment__isnull=True
@@ -128,7 +195,6 @@ def main(request):
             author_id, '/media/profile_pics/default.jpg'
         )
 
-        # Преобразование строки тегов в список объектов
         tag_ids = [int(tag_id) for tag_id in question.tags.split(',') if tag_id]
         question.tag_objects = [
             get_tag_by_id(tag_id) for tag_id in tag_ids if get_tag_by_id(tag_id)
@@ -139,27 +205,21 @@ def main(request):
     context['selected_tags'] = selected_tags
     context['search_query'] = search_query
 
+    if request.user.is_authenticated:
+        context['user_role'] = get_user_role(request.user)
+    else:
+        context['user_role'] = None
+
     return render(request, 'index.html', context)
 
 
 @login_required(login_url='/accounts/login/')
 @require_POST
 def vote_question(request, question_id):
-    """
-    Обработка голосования за вопрос (лайк/дизлайк).
-    Поддерживает отмену голоса и изменение голоса.
-
-    Args:
-        request: HTTP запрос
-        question_id: ID вопроса
-
-    Returns:
-        JsonResponse: Обновлённый рейтинг вопроса
-    """
+    """Обработка голосования за вопрос."""
     question = get_object_or_404(Question, pk=question_id)
     raw_vote = request.POST.get('vote', '')
 
-    # Определение типа голоса
     if raw_vote == 'like':
         vote_type = True
     elif raw_vote == 'dislike':
@@ -170,7 +230,6 @@ def vote_question(request, question_id):
         )
         return JsonResponse({'error': 'invalid vote'}, status=400)
 
-    # Поиск существующего голоса
     existing_vote = Vote.objects.filter(
         user=request.user,
         question=question,
@@ -178,15 +237,14 @@ def vote_question(request, question_id):
         comment__isnull=True
     ).first()
 
-    # Логика голосования
     if existing_vote:
         if existing_vote.vote_type == vote_type:
-            existing_vote.delete()  # Отмена голоса
+            existing_vote.delete()
         else:
-            existing_vote.vote_type = vote_type  # Изменение голоса
+            existing_vote.vote_type = vote_type
             existing_vote.save()
     else:
-        Vote.objects.create(  # Новый голос
+        Vote.objects.create(
             user=request.user,
             question=question,
             vote_type=vote_type
@@ -197,7 +255,6 @@ def vote_question(request, question_id):
         f"{'лайкнул' if vote_type else 'дизлайкнул'} вопрос {question_id}"
     )
 
-    # Подсчёт голосов
     question_votes = Vote.objects.filter(
         question=question, answer__isnull=True, comment__isnull=True
     )
@@ -214,20 +271,10 @@ def vote_question(request, question_id):
 @login_required(login_url='/accounts/login/')
 @require_POST
 def vote_answer(request, answer_id):
-    """
-    Обработка голосования за ответ (лайк/дизлайк).
-
-    Args:
-        request: HTTP запрос
-        answer_id: ID ответа
-
-    Returns:
-        JsonResponse: Обновлённый рейтинг ответа
-    """
+    """Обработка голосования за ответ."""
     answer = get_object_or_404(Answer, pk=answer_id)
     raw_vote = request.POST.get('vote', '')
 
-    # Определение типа голоса
     if raw_vote == 'like':
         vote_type = True
     elif raw_vote == 'dislike':
@@ -239,22 +286,20 @@ def vote_answer(request, answer_id):
         )
         return JsonResponse({'error': 'invalid vote'}, status=400)
 
-    # Поиск существующего голоса
     existing_vote = Vote.objects.filter(
         user=request.user,
         answer=answer,
         comment__isnull=True
     ).first()
 
-    # Логика голосования
     if existing_vote:
         if existing_vote.vote_type == vote_type:
-            existing_vote.delete()  # Отмена голоса
+            existing_vote.delete()
         else:
-            existing_vote.vote_type = vote_type  # Изменение голоса
+            existing_vote.vote_type = vote_type
             existing_vote.save()
     else:
-        Vote.objects.create(  # Новый голос
+        Vote.objects.create(
             user=request.user,
             answer=answer,
             vote_type=vote_type
@@ -265,7 +310,6 @@ def vote_answer(request, answer_id):
         f"{'лайкнул' if vote_type else 'дизлайкнул'} ответ {answer_id}"
     )
 
-    # Подсчёт голосов
     answer_votes = Vote.objects.filter(answer=answer, comment__isnull=True)
     likes = answer_votes.filter(vote_type=True).count()
     dislikes = answer_votes.filter(vote_type=False).count()
@@ -280,16 +324,7 @@ def vote_answer(request, answer_id):
 @login_required(login_url='/accounts/login/')
 @require_POST
 def add_comment(request, answer_id):
-    """
-    Добавление комментария к ответу.
-
-    Args:
-        request: HTTP запрос
-        answer_id: ID ответа
-
-    Returns:
-        HttpResponse: Перенаправление на страницу вопроса
-    """
+    """Добавление комментария к ответу."""
     answer = get_object_or_404(Answer, pk=answer_id)
     form = CommentForm(request.POST)
 
@@ -311,20 +346,10 @@ def add_comment(request, answer_id):
 @login_required(login_url='/accounts/login/')
 @require_POST
 def vote_comment(request, comment_id):
-    """
-    Обработка голосования за комментарий (лайк/дизлайк).
-
-    Args:
-        request: HTTP запрос
-        comment_id: ID комментария
-
-    Returns:
-        JsonResponse: Обновлённый рейтинг комментария
-    """
+    """Обработка голосования за комментарий."""
     comment = get_object_or_404(Comment, pk=comment_id)
     raw_vote = request.POST.get('vote', '')
 
-    # Определение типа голоса
     if raw_vote == 'like':
         vote_type = True
     elif raw_vote == 'dislike':
@@ -336,21 +361,19 @@ def vote_comment(request, comment_id):
         )
         return JsonResponse({'error': 'invalid vote'}, status=400)
 
-    # Поиск существующего голоса
     existing_vote = Vote.objects.filter(
         user=request.user,
         comment=comment
     ).first()
 
-    # Логика голосования
     if existing_vote:
         if existing_vote.vote_type == vote_type:
-            existing_vote.delete()  # Отмена голоса
+            existing_vote.delete()
         else:
-            existing_vote.vote_type = vote_type  # Изменение голоса
+            existing_vote.vote_type = vote_type
             existing_vote.save()
     else:
-        Vote.objects.create(  # Новый голос
+        Vote.objects.create(
             user=request.user,
             comment=comment,
             vote_type=vote_type
@@ -361,7 +384,6 @@ def vote_comment(request, comment_id):
         f"{'лайкнул' if vote_type else 'дизлайкнул'} комментарий {comment_id}"
     )
 
-    # Подсчёт голосов
     comment_votes = Vote.objects.filter(comment=comment)
     likes = comment_votes.filter(vote_type=True).count()
     dislikes = comment_votes.filter(vote_type=False).count()
@@ -375,24 +397,20 @@ def vote_comment(request, comment_id):
 
 @login_required(login_url='/accounts/login/')
 def create_question(request):
-    """
-    Создание нового вопроса.
-    GET: Отображает форму создания вопроса.
-    POST: Сохраняет новый вопрос в базу данных.
+    """Создание нового вопроса."""
+    # Проверка на блокировку
+    profile = ProfileImage.objects.get(user=request.user)
+    if profile.is_blocked:
+        context = {'error': 'Ваш аккаунт заблокирован. Вы не можете создавать вопросы.'}
+        context.update(general_context(request))
+        return render(request, "create_question.html", context)
 
-    Args:
-        request: HTTP запрос
-
-    Returns:
-        HttpResponse: Рендеринг формы или перенаправление на главную
-    """
     if request.method == "POST":
         title = request.POST.get('title')
         text = request.POST.get('text')
         tags = request.POST.getlist('tags')
         author = request.user
 
-        # Сохранение тегов в виде строки с разделителями
         tags_str = ','.join(tags) if tags else ''
 
         new_question = Question(
@@ -409,7 +427,6 @@ def create_question(request):
         )
         return redirect('/')
 
-    # GET запрос - отображение формы
     form = QuestionForm()
     context = {'form': form}
     context.update(general_context(request))
@@ -418,21 +435,18 @@ def create_question(request):
 
 
 def question(request, question_id):
-    """
-    Страница просмотра вопроса с ответами и комментариями.
-    GET: Отображает вопрос, ответы и комментарии.
-    POST: Добавляет новый ответ на вопрос.
-
-    Args:
-        request: HTTP запрос
-        question_id: ID вопроса
-
-    Returns:
-        HttpResponse: Рендеринг страницы вопроса
-    """
+    """Страница просмотра вопроса."""
     if request.method == 'POST':
         answer_form = AnswerForm(request.POST)
         if answer_form.is_valid() and request.user.is_authenticated:
+            # Проверка на блокировку
+            try:
+                profile = ProfileImage.objects.get(user=request.user)
+                if profile.is_blocked:
+                    return redirect(f'/question/{question_id}/')
+            except ProfileImage.DoesNotExist:
+                pass
+
             question_obj = Question.objects.get(id=question_id)
             answer = Answer(
                 question=question_obj,
@@ -449,7 +463,6 @@ def question(request, question_id):
     # GET запрос - отображение страницы
     question_obj = Question.objects.get(id=question_id)
 
-    # Расчёт рейтинга вопроса
     question_votes = Vote.objects.filter(
         question=question_obj, answer__isnull=True, comment__isnull=True
     )
@@ -457,7 +470,6 @@ def question(request, question_id):
     question_obj.dislikes = question_votes.filter(vote_type=False).count()
     question_obj.rating = question_obj.likes - question_obj.dislikes
 
-    # Получение аватара автора вопроса
     if question_obj.author:
         profile = ProfileImage.objects.filter(user=question_obj.author).first()
         avatar_url = profile.avatar.url if profile and profile.avatar \
@@ -466,7 +478,6 @@ def question(request, question_id):
     else:
         question_obj.author_avatar_url = '/media/profile_pics/default.jpg'
 
-    # Преобразование тегов вопроса
     tag_ids = [
         int(tag_id) for tag_id in question_obj.tags.split(',') if tag_id
     ]
@@ -474,19 +485,16 @@ def question(request, question_id):
         get_tag_by_id(tag_id) for tag_id in tag_ids if get_tag_by_id(tag_id)
     ]
 
-    # Загрузка ответов
     answers = Answer.objects.filter(
         question=question_obj
     ).select_related('author__profile')
 
-    # Расчёт рейтинга ответов и загрузка комментариев
     for answer in answers:
         answer_votes = Vote.objects.filter(answer=answer, comment__isnull=True)
         answer.likes = answer_votes.filter(vote_type=True).count()
         answer.dislikes = answer_votes.filter(vote_type=False).count()
         answer.rating = answer.likes - answer.dislikes
 
-        # Аватар автора ответа
         if answer.author:
             profile = ProfileImage.objects.filter(user=answer.author).first()
             avatar_url = profile.avatar.url if profile and profile.avatar \
@@ -495,19 +503,16 @@ def question(request, question_id):
         else:
             answer.author_avatar_url = '/media/profile_pics/default.jpg'
 
-        # Загрузка комментариев к ответу
         answer.comments = Comment.objects.filter(
             answer=answer
         ).select_related('author__profile').order_by('created_at')
 
-        # Расчёт рейтинга комментариев
         for comment in answer.comments:
             comment_votes = Vote.objects.filter(comment=comment)
             comment.likes = comment_votes.filter(vote_type=True).count()
             comment.dislikes = comment_votes.filter(vote_type=False).count()
             comment.rating = comment.likes - comment.dislikes
 
-            # Аватар автора комментария
             if comment.author:
                 profile = ProfileImage.objects.filter(user=comment.author).first()
                 avatar_url = profile.avatar.url if profile and profile.avatar \
@@ -518,9 +523,7 @@ def question(request, question_id):
 
     answer_form = AnswerForm()
     comment_form = CommentForm()
-    logger.debug(
-        f"Открыт вопрос {question_id}, ответов: {answers.count()}"
-    )
+    logger.debug(f"Открыт вопрос {question_id}, ответов: {answers.count()}")
 
     context = {
         'question': question_obj,
@@ -534,16 +537,7 @@ def question(request, question_id):
 
 
 def get_user_rating(user):
-    """
-    Подсчёт общего рейтинга пользователя.
-    Учитывает рейтинг всех вопросов, ответов и комментариев пользователя.
-
-    Args:
-        user: Объект пользователя Django
-
-    Returns:
-        int: Общий рейтинг пользователя
-    """
+    """Подсчёт общего рейтинга пользователя."""
     questions_rating = 0
     for question in Question.objects.filter(author=user):
         question_votes = Vote.objects.filter(
@@ -575,19 +569,13 @@ def get_user_rating(user):
 def delete_question(request, question_id):
     """
     Удаление вопроса.
-    Доступно только администратору или автору вопроса.
-
-    Args:
-        request: HTTP запрос
-        question_id: ID вопроса
-
-    Returns:
-        JsonResponse: Результат операции удаления
+    - Администратор может удалять любые вопросы
+    - Доверенный участник (рейтинг ≥ 10) может удалять любые вопросы
+    - Обычный пользователь может удалять только свои вопросы
     """
     question = get_object_or_404(Question, pk=question_id)
 
-    # Проверка прав на удаление
-    if request.user.is_staff or request.user == question.author:
+    if can_delete_content(request.user, question.author):
         question_title = question.title
         question.delete()
         logger.info(
@@ -611,17 +599,7 @@ def delete_question(request, question_id):
 
 @login_required(login_url='/accounts/login/')
 def profile(request, profile_id):
-    """
-    Страница профиля пользователя.
-    Отображает информацию о пользователе, его рейтинг и активность.
-
-    Args:
-        request: HTTP запрос
-        profile_id: ID пользователя
-
-    Returns:
-        HttpResponse: Рендеринг страницы профиля
-    """
+    """Страница профиля пользователя."""
     user_obj = User.objects.get(id=profile_id)
     profile, _ = ProfileImage.objects.get_or_create(user=user_obj)
 
@@ -651,14 +629,32 @@ def profile(request, profile_id):
 
     total_rating = questions_rating + answers_rating + comments_rating
 
-    # Количество созданного контента
+    # Определение роли
+    if user_obj.is_staff:
+        role = 'admin'
+        role_name = 'Администратор'
+    elif total_rating >= 10:
+        role = 'trusted'
+        role_name = 'Доверенный участник'
+    else:
+        role = 'user'
+        role_name = 'Участник'
+
     questions_count = Question.objects.filter(author=user_obj).count()
     answers_count = Answer.objects.filter(author=user_obj).count()
     comments_count = Comment.objects.filter(author=user_obj).count()
 
+    # Права на удаление
+    can_delete = can_delete_content(request.user, user_obj) if request.user.is_authenticated else False
+    is_admin = request.user.is_staff
+    is_trusted = get_user_role(request.user) == 'trusted' if request.user.is_authenticated else False
+    is_blocked = profile.is_blocked
+    can_user_create = not is_blocked
+    user_role = get_user_role(user_obj) if not user_obj.is_staff else 'admin'
+
     logger.debug(
         f"Открыт профиль пользователя: {user_obj.username}, "
-        f"рейтинг: {total_rating}"
+        f"рейтинг: {total_rating}, роль: {role_name}"
     )
 
     context = {
@@ -671,7 +667,14 @@ def profile(request, profile_id):
         'questions_count': questions_count,
         'answers_count': answers_count,
         'comments_count': comments_count,
-        'is_admin': request.user.is_staff,
+        'is_admin': is_admin,
+        'is_trusted': is_trusted,
+        'role_name': role_name,
+        'role': role,
+        'user_role': user_role,
+        'can_delete': can_delete,
+        'is_blocked': is_blocked,
+        'can_user_create': can_user_create,
     }
     context.update(general_context(request))
 
@@ -680,16 +683,7 @@ def profile(request, profile_id):
 
 @login_required
 def edit_profile(request):
-    """
-    Редактирование профиля пользователя.
-    Позволяет изменить аватар и биографию.
-
-    Args:
-        request: HTTP запрос
-
-    Returns:
-        HttpResponse: Рендеринг формы редактирования
-    """
+    """Редактирование профиля пользователя."""
     if request.method == 'POST':
         form = ProfileForm(
             request.POST, request.FILES, instance=request.user.profile
@@ -710,16 +704,7 @@ def edit_profile(request):
 
 
 def user_login(request):
-    """
-    Страница входа пользователя.
-    Аутентифицирует пользователя и перенаправляет на профиль.
-
-    Args:
-        request: HTTP запрос
-
-    Returns:
-        HttpResponse: Рендеринг страницы входа
-    """
+    """Страница входа пользователя."""
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -728,6 +713,17 @@ def user_login(request):
             user = authenticate(username=username, password=password)
 
             if user is not None and user.is_active:
+                # Проверка на блокировку
+                try:
+                    profile = ProfileImage.objects.get(user=user)
+                    if profile.is_blocked:
+                        form.add_error(None, 'Ваш аккаунт заблокирован. Обратитесь к администратору.')
+                        context = {'form': form}
+                        context.update(general_context(request))
+                        return render(request, 'registration/login.html', context)
+                except ProfileImage.DoesNotExist:
+                    pass
+
                 login(request, user)
                 logger.info(f"Пользователь вошёл: {user.username}")
 
@@ -750,16 +746,7 @@ def user_login(request):
 
 
 def register(request):
-    """
-    Страница регистрации нового пользователя.
-    Создаёт нового пользователя и автоматически выполняет вход.
-
-    Args:
-        request: HTTP запрос
-
-    Returns:
-        HttpResponse: Рендеринг страницы регистрации
-    """
+    """Страница регистрации нового пользователя."""
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
@@ -778,22 +765,11 @@ def register(request):
 
 @login_required(login_url='/accounts/login/')
 def my_questions(request):
-    """
-    Страница "Моя активность".
-    Отображает все вопросы и ответы текущего пользователя.
-
-    Args:
-        request: HTTP запрос
-
-    Returns:
-        HttpResponse: Рендеринг страницы с вопросами и ответами
-    """
+    """Страница "Моя активность"."""
     user = request.user
 
-    # Получение вопросов пользователя
     user_questions = Question.objects.filter(author=user).order_by('-created_at')
 
-    # Добавление количества ответов и тегов
     for question in user_questions:
         question.answers_count = Answer.objects.filter(question=question).count()
         tag_ids = [int(tag_id) for tag_id in question.tags.split(',') if tag_id]
@@ -801,12 +777,10 @@ def my_questions(request):
             get_tag_by_id(tag_id) for tag_id in tag_ids if get_tag_by_id(tag_id)
         ]
 
-    # Получение ответов пользователя
     user_answers = Answer.objects.filter(
         author=user
     ).select_related('question', 'question__author').order_by('-created_at')
 
-    # Расчёт рейтинга ответов
     for answer in user_answers:
         answer_votes = Vote.objects.filter(answer=answer, comment__isnull=True)
         answer.likes = answer_votes.filter(vote_type=True).count()
@@ -823,6 +797,8 @@ def my_questions(request):
         'user': user,
         'questions': user_questions,
         'answers': user_answers,
+        'user_role': get_user_role(user),
+        'can_delete': can_delete_content(user, user),
     }
     context.update(general_context(request))
 

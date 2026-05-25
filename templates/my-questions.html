@@ -50,8 +50,8 @@
                   </div>
                 {% endif %}
 
-                <!-- Кнопка удаления для администратора или автора -->
-                {% if user.is_staff or user == question.author %}
+                <!-- Кнопка удаления для администратора, доверенного участника или автора -->
+                {% if user.is_staff or user_role == 'trusted' or user == question.author %}
                   <div class="question-card__actions">
                     <button type="button" class="delete-question-btn" data-question-id="{{ question.id }}" data-question-title="{{ question.title }}">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -39,6 +39,7 @@ urlpatterns = [
     path('accounts/register/', views.register, name='register'),
     path('accounts/profile/<int:profile_id>/', views.profile, name='profile'),
     path('accounts/profile/edit/', edit_profile, name='edit_profile'),
+    path('user/<int:user_id>/toggle-block/', views.toggle_block_user, name='toggle_block_user'),
 ]
 
 # Добавление URL для медиафайлов в режиме разработки
