@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html lang="ru" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>core.migrations package &#8212; документация MSHP Answers 1.0</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=9ca2116e"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/translations.js?v=cd1d70c9"></script>
+    <link rel="index" title="Алфавитный указатель" href="genindex.html" />
+    <link rel="search" title="Поиск" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="core-migrations-package">
+<h1>core.migrations package<a class="headerlink" href="#core-migrations-package" title="Ссылка на этот заголовок">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Ссылка на этот заголовок">¶</a></h2>
+</section>
+<section id="module-core.migrations.0001_initial">
+<span id="core-migrations-0001-initial-module"></span><h2>core.migrations.0001_initial module<a class="headerlink" href="#module-core.migrations.0001_initial" title="Ссылка на этот заголовок">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.migrations.0001_initial.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">core.migrations.0001_initial.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/migrations/0001_initial.html#Migration"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#core.migrations.0001_initial.Migration" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0001_initial.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('auth',</span> <span class="pre">'__first__')]</span></span><a class="headerlink" href="#core.migrations.0001_initial.Migration.dependencies" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0001_initial.Migration.initial">
+<span class="sig-name descname"><span class="pre">initial</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#core.migrations.0001_initial.Migration.initial" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0001_initial.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;CreateModel</span>&#160; <span class="pre">name='Tag',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('name',</span> <span class="pre">&lt;django.db.models.fields.CharField&gt;)]&gt;,</span> <span class="pre">&lt;CreateModel</span>&#160; <span class="pre">name='Answer',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('text',</span> <span class="pre">&lt;django.db.models.fields.TextField&gt;),</span> <span class="pre">('created_at',</span> <span class="pre">&lt;django.db.models.fields.DateTimeField&gt;),</span> <span class="pre">('author',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;),</span> <span class="pre">('parent',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;)]&gt;,</span> <span class="pre">&lt;CreateModel</span>&#160; <span class="pre">name='ProfileImage',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('file',</span> <span class="pre">&lt;django.db.models.fields.files.ImageField&gt;),</span> <span class="pre">('user',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;)]&gt;,</span> <span class="pre">&lt;CreateModel</span>&#160; <span class="pre">name='Question',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('title',</span> <span class="pre">&lt;django.db.models.fields.CharField&gt;),</span> <span class="pre">('text',</span> <span class="pre">&lt;django.db.models.fields.TextField&gt;),</span> <span class="pre">('created_at',</span> <span class="pre">&lt;django.db.models.fields.DateTimeField&gt;),</span> <span class="pre">('author',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;),</span> <span class="pre">('tags',</span> <span class="pre">&lt;django.db.models.fields.related.ManyToManyField&gt;)]&gt;,</span> <span class="pre">&lt;CreateModel</span>&#160; <span class="pre">name='Comment',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('text',</span> <span class="pre">&lt;django.db.models.fields.TextField&gt;),</span> <span class="pre">('created_at',</span> <span class="pre">&lt;django.db.models.fields.DateTimeField&gt;),</span> <span class="pre">('answer',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;),</span> <span class="pre">('author',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;),</span> <span class="pre">('question',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;)]&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='answer',</span> <span class="pre">name='question',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;CreateModel</span>&#160; <span class="pre">name='Vote',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('created_at',</span> <span class="pre">&lt;django.db.models.fields.DateTimeField&gt;),</span> <span class="pre">('vote_type',</span> <span class="pre">&lt;django.db.models.fields.BooleanField&gt;),</span> <span class="pre">('answer',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;),</span> <span class="pre">('question',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;),</span> <span class="pre">('user',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;)],</span> <span class="pre">options={'unique_together':</span> <span class="pre">{('user',</span> <span class="pre">'question'),</span> <span class="pre">('user',</span> <span class="pre">'answer')}}&gt;]</span></span><a class="headerlink" href="#core.migrations.0001_initial.Migration.operations" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-core.migrations.0002_remove_profileimage_file_profileimage_avatar_and_more">
+<span id="core-migrations-0002-remove-profileimage-file-profileimage-avatar-and-more-module"></span><h2>core.migrations.0002_remove_profileimage_file_profileimage_avatar_and_more module<a class="headerlink" href="#module-core.migrations.0002_remove_profileimage_file_profileimage_avatar_and_more" title="Ссылка на этот заголовок">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.migrations.0002_remove_profileimage_file_profileimage_avatar_and_more.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">core.migrations.0002_remove_profileimage_file_profileimage_avatar_and_more.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/migrations/0002_remove_profileimage_file_profileimage_avatar_and_more.html#Migration"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#core.migrations.0002_remove_profileimage_file_profileimage_avatar_and_more.Migration" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0002_remove_profileimage_file_profileimage_avatar_and_more.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('core',</span> <span class="pre">'0001_initial'),</span> <span class="pre">('auth',</span> <span class="pre">'__first__')]</span></span><a class="headerlink" href="#core.migrations.0002_remove_profileimage_file_profileimage_avatar_and_more.Migration.dependencies" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0002_remove_profileimage_file_profileimage_avatar_and_more.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;RemoveField</span>&#160; <span class="pre">model_name='profileimage',</span> <span class="pre">name='file'&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='profileimage',</span> <span class="pre">name='avatar',</span> <span class="pre">field=&lt;django.db.models.fields.files.ImageField&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='profileimage',</span> <span class="pre">name='bio',</span> <span class="pre">field=&lt;django.db.models.fields.TextField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='profileimage',</span> <span class="pre">name='user',</span> <span class="pre">field=&lt;django.db.models.fields.related.OneToOneField&gt;&gt;]</span></span><a class="headerlink" href="#core.migrations.0002_remove_profileimage_file_profileimage_avatar_and_more.Migration.operations" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-core.migrations.0003_remove_question_tags_delete_tag_question_tags">
+<span id="core-migrations-0003-remove-question-tags-delete-tag-question-tags-module"></span><h2>core.migrations.0003_remove_question_tags_delete_tag_question_tags module<a class="headerlink" href="#module-core.migrations.0003_remove_question_tags_delete_tag_question_tags" title="Ссылка на этот заголовок">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.migrations.0003_remove_question_tags_delete_tag_question_tags.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">core.migrations.0003_remove_question_tags_delete_tag_question_tags.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/migrations/0003_remove_question_tags_delete_tag_question_tags.html#Migration"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#core.migrations.0003_remove_question_tags_delete_tag_question_tags.Migration" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0003_remove_question_tags_delete_tag_question_tags.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('core',</span> <span class="pre">'0002_remove_profileimage_file_profileimage_avatar_and_more')]</span></span><a class="headerlink" href="#core.migrations.0003_remove_question_tags_delete_tag_question_tags.Migration.dependencies" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0003_remove_question_tags_delete_tag_question_tags.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;RemoveField</span>&#160; <span class="pre">model_name='question',</span> <span class="pre">name='tags'&gt;,</span> <span class="pre">&lt;DeleteModel</span>&#160; <span class="pre">name='Tag'&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='question',</span> <span class="pre">name='tags',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;]</span></span><a class="headerlink" href="#core.migrations.0003_remove_question_tags_delete_tag_question_tags.Migration.operations" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-core.migrations.0004_comment_parent_commentvote">
+<span id="core-migrations-0004-comment-parent-commentvote-module"></span><h2>core.migrations.0004_comment_parent_commentvote module<a class="headerlink" href="#module-core.migrations.0004_comment_parent_commentvote" title="Ссылка на этот заголовок">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.migrations.0004_comment_parent_commentvote.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">core.migrations.0004_comment_parent_commentvote.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/migrations/0004_comment_parent_commentvote.html#Migration"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#core.migrations.0004_comment_parent_commentvote.Migration" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0004_comment_parent_commentvote.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('core',</span> <span class="pre">'0003_remove_question_tags_delete_tag_question_tags'),</span> <span class="pre">('auth',</span> <span class="pre">'__first__')]</span></span><a class="headerlink" href="#core.migrations.0004_comment_parent_commentvote.Migration.dependencies" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0004_comment_parent_commentvote.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AddField</span>&#160; <span class="pre">model_name='comment',</span> <span class="pre">name='parent',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;CreateModel</span>&#160; <span class="pre">name='CommentVote',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('created_at',</span> <span class="pre">&lt;django.db.models.fields.DateTimeField&gt;),</span> <span class="pre">('vote_type',</span> <span class="pre">&lt;django.db.models.fields.BooleanField&gt;),</span> <span class="pre">('comment',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;),</span> <span class="pre">('user',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;)],</span> <span class="pre">options={'unique_together':</span> <span class="pre">{('user',</span> <span class="pre">'comment')}}&gt;]</span></span><a class="headerlink" href="#core.migrations.0004_comment_parent_commentvote.Migration.operations" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-core.migrations.0005_alter_vote_unique_together_vote_comment_and_more">
+<span id="core-migrations-0005-alter-vote-unique-together-vote-comment-and-more-module"></span><h2>core.migrations.0005_alter_vote_unique_together_vote_comment_and_more module<a class="headerlink" href="#module-core.migrations.0005_alter_vote_unique_together_vote_comment_and_more" title="Ссылка на этот заголовок">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.migrations.0005_alter_vote_unique_together_vote_comment_and_more.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">core.migrations.0005_alter_vote_unique_together_vote_comment_and_more.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/migrations/0005_alter_vote_unique_together_vote_comment_and_more.html#Migration"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#core.migrations.0005_alter_vote_unique_together_vote_comment_and_more.Migration" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0005_alter_vote_unique_together_vote_comment_and_more.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('core',</span> <span class="pre">'0004_comment_parent_commentvote'),</span> <span class="pre">('auth',</span> <span class="pre">'__first__')]</span></span><a class="headerlink" href="#core.migrations.0005_alter_vote_unique_together_vote_comment_and_more.Migration.dependencies" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0005_alter_vote_unique_together_vote_comment_and_more.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AlterUniqueTogether</span>&#160; <span class="pre">name='vote',</span> <span class="pre">unique_together={('user',</span> <span class="pre">'question'),</span> <span class="pre">('user',</span> <span class="pre">'answer')}&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='vote',</span> <span class="pre">name='comment',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterUniqueTogether</span>&#160; <span class="pre">name='vote',</span> <span class="pre">unique_together={('user',</span> <span class="pre">'question'),</span> <span class="pre">('user',</span> <span class="pre">'comment'),</span> <span class="pre">('user',</span> <span class="pre">'answer')}&gt;]</span></span><a class="headerlink" href="#core.migrations.0005_alter_vote_unique_together_vote_comment_and_more.Migration.operations" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-core.migrations.0006_delete_commentvote">
+<span id="core-migrations-0006-delete-commentvote-module"></span><h2>core.migrations.0006_delete_commentvote module<a class="headerlink" href="#module-core.migrations.0006_delete_commentvote" title="Ссылка на этот заголовок">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.migrations.0006_delete_commentvote.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">core.migrations.0006_delete_commentvote.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/migrations/0006_delete_commentvote.html#Migration"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#core.migrations.0006_delete_commentvote.Migration" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0006_delete_commentvote.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('core',</span> <span class="pre">'0005_alter_vote_unique_together_vote_comment_and_more')]</span></span><a class="headerlink" href="#core.migrations.0006_delete_commentvote.Migration.dependencies" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0006_delete_commentvote.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;DeleteModel</span>&#160; <span class="pre">name='CommentVote'&gt;]</span></span><a class="headerlink" href="#core.migrations.0006_delete_commentvote.Migration.operations" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-core.migrations.0007_alter_answer_options_alter_comment_options_and_more">
+<span id="core-migrations-0007-alter-answer-options-alter-comment-options-and-more-module"></span><h2>core.migrations.0007_alter_answer_options_alter_comment_options_and_more module<a class="headerlink" href="#module-core.migrations.0007_alter_answer_options_alter_comment_options_and_more" title="Ссылка на этот заголовок">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.migrations.0007_alter_answer_options_alter_comment_options_and_more.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">core.migrations.0007_alter_answer_options_alter_comment_options_and_more.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/migrations/0007_alter_answer_options_alter_comment_options_and_more.html#Migration"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#core.migrations.0007_alter_answer_options_alter_comment_options_and_more.Migration" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0007_alter_answer_options_alter_comment_options_and_more.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('core',</span> <span class="pre">'0006_delete_commentvote'),</span> <span class="pre">('auth',</span> <span class="pre">'__first__')]</span></span><a class="headerlink" href="#core.migrations.0007_alter_answer_options_alter_comment_options_and_more.Migration.dependencies" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.migrations.0007_alter_answer_options_alter_comment_options_and_more.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AlterModelOptions</span>&#160; <span class="pre">name='answer',</span> <span class="pre">options={'ordering':</span> <span class="pre">['-created_at'],</span> <span class="pre">'verbose_name':</span> <span class="pre">'Ответ',</span> <span class="pre">'verbose_name_plural':</span> <span class="pre">'Ответы'}&gt;,</span> <span class="pre">&lt;AlterModelOptions</span>&#160; <span class="pre">name='comment',</span> <span class="pre">options={'ordering':</span> <span class="pre">['created_at'],</span> <span class="pre">'verbose_name':</span> <span class="pre">'Комментарий',</span> <span class="pre">'verbose_name_plural':</span> <span class="pre">'Комментарии'}&gt;,</span> <span class="pre">&lt;AlterModelOptions</span>&#160; <span class="pre">name='profileimage',</span> <span class="pre">options={'verbose_name':</span> <span class="pre">'Профиль',</span> <span class="pre">'verbose_name_plural':</span> <span class="pre">'Профили'}&gt;,</span> <span class="pre">&lt;AlterModelOptions</span>&#160; <span class="pre">name='question',</span> <span class="pre">options={'ordering':</span> <span class="pre">['-created_at'],</span> <span class="pre">'verbose_name':</span> <span class="pre">'Вопрос',</span> <span class="pre">'verbose_name_plural':</span> <span class="pre">'Вопросы'}&gt;,</span> <span class="pre">&lt;AlterModelOptions</span>&#160; <span class="pre">name='vote',</span> <span class="pre">options={'verbose_name':</span> <span class="pre">'Голос',</span> <span class="pre">'verbose_name_plural':</span> <span class="pre">'Голоса'}&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='profileimage',</span> <span class="pre">name='is_blocked',</span> <span class="pre">field=&lt;django.db.models.fields.BooleanField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='answer',</span> <span class="pre">name='author',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='answer',</span> <span class="pre">name='created_at',</span> <span class="pre">field=&lt;django.db.models.fields.DateTimeField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='answer',</span> <span class="pre">name='parent',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='answer',</span> <span class="pre">name='question',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='answer',</span> <span class="pre">name='text',</span> <span class="pre">field=&lt;django.db.models.fields.TextField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='comment',</span> <span class="pre">name='answer',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='comment',</span> <span class="pre">name='author',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='comment',</span> <span class="pre">name='created_at',</span> <span class="pre">field=&lt;django.db.models.fields.DateTimeField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='comment',</span> <span class="pre">name='parent',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='comment',</span> <span class="pre">name='question',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='comment',</span> <span class="pre">name='text',</span> <span class="pre">field=&lt;django.db.models.fields.TextField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='profileimage',</span> <span class="pre">name='avatar',</span> <span class="pre">field=&lt;django.db.models.fields.files.ImageField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='profileimage',</span> <span class="pre">name='bio',</span> <span class="pre">field=&lt;django.db.models.fields.TextField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='profileimage',</span> <span class="pre">name='user',</span> <span class="pre">field=&lt;django.db.models.fields.related.OneToOneField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='question',</span> <span class="pre">name='author',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='question',</span> <span class="pre">name='created_at',</span> <span class="pre">field=&lt;django.db.models.fields.DateTimeField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='question',</span> <span class="pre">name='tags',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='question',</span> <span class="pre">name='text',</span> <span class="pre">field=&lt;django.db.models.fields.TextField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='question',</span> <span class="pre">name='title',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='vote',</span> <span class="pre">name='answer',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='vote',</span> <span class="pre">name='comment',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='vote',</span> <span class="pre">name='created_at',</span> <span class="pre">field=&lt;django.db.models.fields.DateTimeField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='vote',</span> <span class="pre">name='question',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='vote',</span> <span class="pre">name='user',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='vote',</span> <span class="pre">name='vote_type',</span> <span class="pre">field=&lt;django.db.models.fields.BooleanField&gt;&gt;]</span></span><a class="headerlink" href="#core.migrations.0007_alter_answer_options_alter_comment_options_and_more.Migration.operations" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-core.migrations">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-core.migrations" title="Ссылка на этот заголовок">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MSHP Answers</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Искать" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Навигация</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, MSHP students.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/core.migrations.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
