@@ -1,49 +1,85 @@
-# Автоматическое тестирование и сборка документации через GitLab Pages
-
 stages:
   - test
-  - deploy
+  - docs
+  - pages
 
-# Переменные окружения
 variables:
-  PYTHON_VERSION: "3.12"
-  DJANGO_SETTINGS_MODULE: "core.settings"
+  PYTHON_VERSION: "3.11"
+  DJANGO_SETTINGS_MODULE: "testdjango.settings"
 
-# Этап автоматического тестирования
+cache:
+  paths:
+    - venv/
+    - .cache/pip
+    - docs/_build/
+
+# Шаблон для Python
+.python_setup: &python_setup
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq graphviz
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+
 test:
   stage: test
-  image: python:${PYTHON_VERSION}
-  before_script:
-    - pip install django
-    - pip install coverage
+  image: python:${PYTHON_VERSION}-slim
+  <<: *python_setup
   script:
-    - python manage.py test core --verbosity=2
-    # Измерение покрытия кода
-    - coverage run manage.py test core
+    # Запуск тестов с покрытием
+    - pip install coverage
+    - coverage run --source='core' manage.py test core --verbosity=2
+    - coverage report -m
     - coverage xml -o coverage.xml
   artifacts:
-    paths:
-      - coverage.xml
     reports:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+    paths:
+      - coverage.xml
+      - htmlcov/
     expire_in: 1 week
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_COMMIT_BRANCH =~ /^feature\/.*$/
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  only:
+    - main
+    - develop
+    - merge_requests
 
-# Этап сборки документации через GitLab Pages
-pages:
-  stage: deploy
-  image: python:${PYTHON_VERSION}
+# ========== 2. СОЗДАНИЕ ТЕСТОВОЙ ДОКУМЕНТАЦИИ ==========
+docs-build:
+  stage: docs
+  image: python:${PYTHON_VERSION}-slim
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq make graphviz
+    - pip install --upgrade pip
+    - pip install -r docs/requirements.txt
   script:
-    - pip install sphinx sphinx-rtd-theme
     - cd docs
-    - sphinx-build -b html . public   # Сборка документации в папку public
+    - make clean
+    - make html
   artifacts:
     paths:
-      - public                        # Сохраняем результат как артефакт
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main" # Запускаем только для основной ветки
+      - docs/_build/html/
+      - docs/_build/latex/*.pdf
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+
+# ========== 3. ПУБЛИКАЦИЯ НА GITLAB PAGES ==========
+pages:
+  stage: pages
+  image: alpine:latest
+  needs:
+    - docs-build
+  script:
+    - mkdir -p public
+    - cp -r docs/_build/html/* public/ || true
+    - echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=index.html"></head><body></body></html>' > public/index.html
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
