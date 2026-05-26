@@ -1,0 +1,12 @@
+# Автоматическая сборка и публикация документации через GitLab Pages
+pages:
+  stage: deploy
+  script:
+    - pip install sphinx sphinx-rtd-theme
+    - cd docs
+    - sphinx-build -b html . public   # Сборка документации в папку public
+  artifacts:
+    paths:
+      - public                        # Сохраняем результат как артефакт
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" # Запускаем только для основной ветки
