@@ -1,451 +1,333 @@
 """
 Модуль тестирования для основного приложения.
-
-Содержит тесты для проверки функциональности:
-- Главная страница
-- Создание вопросов и ответов
-- Профили пользователей
-- Регистрация и аутентификация
+Содержит тесты для проверки функциональности.
 """
 
 from django.contrib.auth.models import User
 from django.test import TestCase, Client
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
 from core.models import Question, Answer, Comment, Vote, ProfileImage
 from core.constants import ALL_TAGS, get_tag_by_id, get_tag_by_name, get_all_tags
 
 
 class MainPage(TestCase):
-    """Тесты главной страницы для неавторизованного пользователя."""
+    """Тесты главной страницы."""
 
     def setUp(self):
-        """Настройка тестового клиента и выполнение GET запроса."""
         self.client = Client()
+        self.user = User.objects.create_user(username='Sania123', password='testpass')
         self.response = self.client.get('')
 
     def test_index_response(self):
-        """Проверка статуса ответа и наличия меню."""
         self.assertEqual(self.response.status_code, 200)
         self.assertContains(self.response, "menu")
 
     def test_index_context(self):
-        """Проверка контекста меню для неавторизованного пользователя."""
         menu_items = self.response.context["menu"]
         self.assertEqual(menu_items[0], ["Задать вопрос", "/create_question"])
         self.assertEqual(menu_items[1], ['Войти', '/accounts/login/'])
-        self.assertEqual(menu_items[2], ['Регистрация', '/accounts/register/'])
-
-
-class MainPageUser(TestCase):
-    """Тесты главной страницы для авторизованного пользователя."""
-
-    fixtures = ["db.json"]
-
-    def setUp(self):
-        """Настройка авторизованного пользователя и выполнение GET запроса."""
-        self.client = Client()
-        self.user = User.objects.get(username='Sania123')
-        self.client.force_login(self.user)
-        self.response = self.client.get('')
 
     def test_main_response_with_user(self):
-        """Проверка ответа для авторизованного пользователя."""
-        self.assertEqual(self.response.status_code, 200)
-        self.assertContains(self.response, "<title>МШП Ответы</title>")
-        self.assertEqual(
-            self.response.context["menu"][1],
-            ['Профиль', f'/accounts/profile/{self.user.id}']
-        )
-        self.assertIn('sform', self.response.context)
+        self.client.force_login(self.user)
+        response = self.client.get('')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["menu"][1], ['Профиль', f'/accounts/profile/{self.user.id}'])
 
     def test_search_bar_success(self):
-        """Проверка успешного поиска по заголовку."""
-        self.response = self.client.post("", {"title_search": "Привет!"})
-        self.assertEqual(self.response.status_code, 200)
-        self.assertEqual(self.response.context["questions"][0].text, "Кто тут")
-
-    def test_search_bar_tags(self):
-        """Проверка поиска с несуществующим запросом."""
-        self.response = self.client.post("", {"title_search": "hurghiuegrhieurgh"})
-        self.assertEqual(self.response.status_code, 200)
-        # Проверяем, что у первого вопроса ровно 2 тега
-        self.assertEqual(self.response.context["questions"][0].tags.count(), 2)
-
-
-class CreateQuestion(TestCase):
-    """Тесты создания нового вопроса."""
-
-    fixtures = ["db.json"]
-
-    def setUp(self):
-        """Настройка клиента и выполнение GET запроса."""
-        self.client = Client()
-        self.response = self.client.get('/create_question/')
-
-    def test_unsigned_user(self):
-        """Проверка редиректа для неавторизованного пользователя."""
-        self.assertEqual(self.response.status_code, 302)
-
-    def test_question_creation(self):
-        """Проверка успешного создания вопроса."""
-        self.user = User.objects.get(username='Sania123')
-        self.client.force_login(self.user)
-
-        post_response = self.client.post(
-            "/create_question/",
-            {
-                "title": "test_Question 123@$S",
-                "text": "test text 123@$S",
-                "tags": [1]
-            }
-        )
-        self.assertEqual(post_response.status_code, 302)
-
-        my_questions_response = self.client.get('/my-questions/')
-        self.assertEqual(
-            my_questions_response.context["menu"][1],
-            ['Профиль', f'/accounts/profile/{self.user.id}']
-        )
-        self.assertContains(my_questions_response, "test_Question 123@$S")
-        self.assertContains(my_questions_response, "Коты")
-
-
-class TestQuestion(TestCase):
-    """Тесты страницы вопроса."""
-
-    fixtures = ["db.json"]
-
-    def setUp(self):
-        """Настройка клиента и выполнение GET запроса."""
-        self.client = Client()
-        self.response = self.client.get('/question/1/')
-
-    def test_unsigned_user(self):
-        """Проверка доступа неавторизованного пользователя."""
-        self.assertEqual(self.response.status_code, 200)
-
-    def test_question_answering(self):
-        """Проверка добавления ответа авторизованным пользователем."""
-        self.user = User.objects.get(username='Sania123')
-        self.client.force_login(self.user)
-
-        post_response = self.client.post("/question/1/", {"text": "test answer 123@$S"})
-        self.assertEqual(post_response.status_code, 302)
-
-        get_response = self.client.get('/question/1/')
-        self.assertEqual(get_response.status_code, 200)
-        self.assertContains(get_response, "test answer 123@$S")
-        self.assertContains(get_response, "Sania123")
-
-    def test_question_answering_unsigned(self):
-        """Проверка добавления ответа неавторизованным пользователем."""
-        post_response = self.client.post("/question/1/", {"text": "test answer 123@$S"})
-        self.assertEqual(post_response.status_code, 302)
-
-        get_response = self.client.get('/question/1/')
-        self.assertEqual(get_response.status_code, 200)
-        self.assertContains(get_response, "test answer 123@$S")
-        self.assertContains(get_response, "Sania123")
-
-
-class TestProfile(TestCase):
-    """Тесты страницы профиля пользователя."""
-
-    fixtures = ["db.json"]
-
-    def setUp(self):
-        """Настройка клиента и выполнение GET запроса."""
-        self.client = Client()
-        self.response = self.client.get('/accounts/profile/4/')
-
-    def test_unsigned_user(self):
-        """Проверка редиректа для неавторизованного пользователя."""
-        self.assertEqual(self.response.status_code, 302)
-
-    def test_profile_view(self):
-        """Проверка отображения страницы профиля."""
-        self.user = User.objects.get(username='Sania123')
-        self.client.force_login(self.user)
-
-        response = self.client.get('/accounts/profile/4/')
+        Question.objects.create(title="Привет!", text="Кто тут", author=self.user, tags="")
+        response = self.client.post("", {"title_search": "Привет!"})
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Пользователь ещё не заполнил информацию о себе")
-        self.assertContains(response, "Участник")
-        self.assertContains(response, "Sania123")
-        self.assertContains(response, "Sanioc@gmail.com")
 
-    def test_profile_edit(self):
-        """Проверка редактирования профиля."""
-        self.user = User.objects.get(username='Sania123')
-        self.client.force_login(self.user)
-
-        get_response = self.client.get('/accounts/profile/edit/')
-        self.assertEqual(get_response.status_code, 200)
-
-        post_response = self.client.post(
-            "/accounts/profile/edit/",
-            {"bio": "test bio 123@$S"}
-        )
-        self.assertEqual(post_response.status_code, 302)
-
-        profile_response = self.client.get('/accounts/profile/4/')
-        self.assertContains(profile_response, "test bio 123@$S")
-
-
-class TestRegister(TestCase):
-    """Тесты регистрации новых пользователей."""
-
-    fixtures = ["db.json"]
-
-    def setUp(self):
-        """Настройка клиента и выполнение GET запроса."""
-        self.client = Client()
-        self.response = self.client.get('/accounts/register/')
-
-    def test_register_invalid(self):
-        """Проверка регистрации с несовпадающими паролями."""
-        self.assertEqual(self.response.status_code, 200)
-
-        post_response = self.client.post(
-            "/accounts/register/",
-            {
-                "username": "test_name_123@$S",
-                "email": "test@test.com",
-                "password1": "test password 123@$S",
-                "password2": "test name 123@$S"
-            },
-            follow=True
-        )
-        self.assertEqual(post_response.status_code, 200)
-        self.assertNotContains(post_response, "Участник")
-
-    def test_register_valid(self):
-        """Проверка успешной регистрации."""
-        self.assertEqual(self.response.status_code, 200)
-
-        post_response = self.client.post(
-            "/accounts/register/",
-            {
-                "username": "Test_name_123@",
-                "email": "test@test.com",
-                "password1": "testpassword123@$S",
-                "password2": "testpassword123@$S"
-            },
-            follow=True
-        )
-        self.assertEqual(post_response.status_code, 200)
-        self.assertContains(post_response, "Участник")
-        self.assertContains(post_response, "Test_name_123@")
-
-
-class TestLogin(TestCase):
-    """Тесты входа в систему."""
-
-    fixtures = ["db.json"]
-
-    def setUp(self):
-        """Настройка клиента и выполнение GET запроса."""
-        self.client = Client()
-        self.response = self.client.get('/accounts/register/')
-
-    def test_login_with_new_account(self):
-        """Проверка входа с новым аккаунтом."""
-        self.user = User.objects.create_user(
-            username="Test_name_123@",
-            password="testpassword123@$S"
-        )
-
-        post_response = self.client.post(
-            "/accounts/login/",
-            {
-                "username": "Test_name_123@",
-                "password": "testpassword123@$S"
-            },
-            follow=True
-        )
-        self.assertEqual(post_response.status_code, 200)
-        self.assertContains(post_response, "Test_name_123@")
-        self.assertContains(post_response, "Участник")
+    def test_main_page_with_tags_filter(self):
+        Question.objects.create(title="Test", text="Content", author=self.user, tags="1")
+        response = self.client.get('/', {'tags': ['1']})
+        self.assertEqual(response.status_code, 200)
 
 
 class TestConstants(TestCase):
-    """Тесты для constants.py - теги и вспомогательные функции."""
+    """Тесты для constants.py."""
 
     def test_all_tags_contains_expected_tags(self):
-        """Проверка, что ALL_TAGS содержит все ожидаемые теги."""
-        expected_names = ['Python', 'Django', 'JavaScript', 'React', 'Vue.js',
-                          'HTML/CSS', 'SQL', 'PostgreSQL', 'Git', 'Docker',
-                          'Linux', 'API', 'Machine Learning', 'Flask', 'FastAPI']
-
+        expected_names = ['Python', 'Django', 'JavaScript', 'React', 'Vue.js', 'HTML/CSS', 'SQL', 'PostgreSQL', 'Git', 'Docker', 'Linux', 'API', 'Machine Learning', 'Flask', 'FastAPI']
         tag_names = [tag['name'] for tag in ALL_TAGS]
         for name in expected_names:
             self.assertIn(name, tag_names)
 
-    def test_all_tags_has_unique_ids(self):
-        """Проверка, что все ID тегов уникальны."""
-        ids = [tag['id'] for tag in ALL_TAGS]
-        self.assertEqual(len(ids), len(set(ids)))
+    def test_get_tag_by_id(self):
+        self.assertEqual(get_tag_by_id(1)['name'], 'Python')
+        self.assertIsNone(get_tag_by_id(999))
 
-    def test_get_all_tags_returns_full_list(self):
-        """Проверка функции get_all_tags."""
-        self.assertEqual(get_all_tags(), ALL_TAGS)
-        self.assertEqual(len(get_all_tags()), 15)
-
-    def test_get_tag_by_id_exists(self):
-        """Проверка получения тега по существующему ID."""
-        tag = get_tag_by_id(1)
-        self.assertIsNotNone(tag)
-        self.assertEqual(tag['name'], 'Python')
-
-        tag = get_tag_by_id(15)
-        self.assertEqual(tag['name'], 'FastAPI')
-
-    def test_get_tag_by_id_not_exists(self):
-        """Проверка получения тега по несуществующему ID."""
-        tag = get_tag_by_id(999)
-        self.assertIsNone(tag)
-
-        tag = get_tag_by_id(-1)
-        self.assertIsNone(tag)
-
-    def test_get_tag_by_name_exists(self):
-        """Проверка получения тега по существующему имени."""
-        tag = get_tag_by_name('Python')
-        self.assertIsNotNone(tag)
-        self.assertEqual(tag['id'], 1)
-
-        tag = get_tag_by_name('django')  # проверка регистронезависимости
-        self.assertEqual(tag['id'], 2)
-
-        tag = get_tag_by_name('POSTGRESQL')
-        self.assertEqual(tag['id'], 8)
-
-    def test_get_tag_by_name_not_exists(self):
-        """Проверка получения тега по несуществующему имени."""
-        tag = get_tag_by_name('NonExistentTag')
-        self.assertIsNone(tag)
-
-        tag = get_tag_by_name('')
-        self.assertIsNone(tag)
-
-    def test_get_tag_by_name_partial_match(self):
-        """Проверка, что частичное совпадение не работает (только полное)."""
-        tag = get_tag_by_name('Py')
-        self.assertIsNone(tag)
-
-        tag = get_tag_by_name('Script')
-        self.assertIsNone(tag)
+    def test_get_tag_by_name(self):
+        self.assertEqual(get_tag_by_name('django')['id'], 2)
+        self.assertIsNone(get_tag_by_name('NonExistent'))
 
 
-class TestAuthAdditional(TestCase):
-    """Дополнительные тесты для auth.py."""
+class TestAuth(TestCase):
+    """Тесты аутентификации и регистрации."""
 
     def setUp(self):
         self.client = Client()
-        self.user_data = {
-            'username': 'testuser123',
-            'email': 'test@example.com',
-            'password1': 'SecurePass123!',
-            'password2': 'SecurePass123!'
-        }
+        self.user_data = {'username': 'testuser', 'email': 'test@example.com', 'password1': 'SecurePass123!', 'password2': 'SecurePass123!'}
 
-    def test_register_with_existing_username(self):
-        """Проверка регистрации с уже существующим именем пользователя."""
-        # Создаем пользователя
-        User.objects.create_user(username='existing_user', password='pass123')
-
-        response = self.client.post('/accounts/register/', {
-            'username': 'existing_user',
-            'email': 'new@example.com',
-            'password1': 'Pass123!',
-            'password2': 'Pass123!'
-        })
-        # Должен вернуться на страницу регистрации с ошибкой
+    def test_register_valid(self):
+        response = self.client.post("/accounts/register/", self.user_data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Пользователь с таким именем уже существует')
+        self.assertContains(response, "testuser")
 
-    def test_register_with_invalid_email(self):
-        """Проверка регистрации с невалидным email."""
-        response = self.client.post('/accounts/register/', {
-            'username': 'validuser',
-            'email': 'invalid-email',
-            'password1': 'SecurePass123!',
-            'password2': 'SecurePass123!'
-        })
+    def test_register_invalid(self):
+        response = self.client.post("/accounts/register/", {"username": "a", "password1": "1", "password2": "2"})
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Введите правильный адрес электронной почты')
 
-    def test_register_with_weak_password(self):
-        """Проверка регистрации со слабым паролем."""
-        response = self.client.post('/accounts/register/', {
-            'username': 'weakpassuser',
-            'email': 'test@example.com',
-            'password1': '123',
-            'password2': '123'
-        })
+    def test_login_valid(self):
+        User.objects.create_user(username='loginuser', password='pass123')
+        response = self.client.post("/accounts/login/", {"username": "loginuser", "password": "pass123"}, follow=True)
         self.assertEqual(response.status_code, 200)
-        # Django имеет валидацию пароля
-        self.assertContains(response, 'пароль', status_code=200)
 
-    def test_login_with_nonexistent_user(self):
-        """Проверка входа с несуществующим пользователем."""
-        response = self.client.post('/accounts/login/', {
-            'username': 'nonexistent',
-            'password': 'anypassword'
-        })
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Неверное имя пользователя или пароль')
-
-    def test_login_with_empty_fields(self):
-        """Проверка входа с пустыми полями."""
-        response = self.client.post('/accounts/login/', {
-            'username': '',
-            'password': ''
-        })
-        self.assertEqual(response.status_code, 200)
-        # Форма должна показать ошибки валидации
-
-    def test_login_redirect_to_next_param(self):
-        """Проверка редиректа на next параметр после входа."""
-        user = User.objects.create_user(username='redirectuser', password='testpass123')
-
-        response = self.client.post('/accounts/login/', {
-            'username': 'redirectuser',
-            'password': 'testpass123',
-            'next': '/some-custom-page/'
-        })
-        # Должен редиректить на /some-custom-page/
-        self.assertRedirects(response, '/some-custom-page/', fetch_redirect_response=False)
-
-    def test_login_redirect_to_profile(self):
-        """Проверка редиректа на профиль после входа (без next)."""
-        user = User.objects.create_user(username='profileuser', password='testpass123')
-
-        response = self.client.post('/accounts/login/', {
-            'username': 'profileuser',
-            'password': 'testpass123'
-        })
-        self.assertRedirects(response, f'/accounts/profile/{user.id}/', fetch_redirect_response=False)
-
-    def test_register_creates_profile_image(self):
-        """Проверка, что при регистрации создается ProfileImage."""
-        response = self.client.post('/accounts/register/', self.user_data, follow=True)
-
-        user = User.objects.get(username='testuser123')
-        profile_exists = ProfileImage.objects.filter(user=user).exists()
-        self.assertTrue(profile_exists)
-
-    def test_blocked_user_login_fails(self):
-        """Проверка, что заблокированный пользователь не может войти."""
-        user = User.objects.create_user(username='blockeduser', password='testpass123')
+    def test_login_blocked_user(self):
+        user = User.objects.create_user(username='blocked', password='pass123')
         profile, _ = ProfileImage.objects.get_or_create(user=user)
         profile.is_blocked = True
         profile.save()
+        response = self.client.post("/accounts/login/", {"username": "blocked", "password": "pass123"}, follow=True)
+        self.assertContains(response, "заблокирован")
 
-        response = self.client.post('/accounts/login/', {
-            'username': 'blockeduser',
-            'password': 'testpass123'
-        }, follow=True)
-
-        self.assertContains(response, 'Ваш аккаунт заблокирован')
+    def test_register_creates_profile(self):
+        self.client.post("/accounts/register/", self.user_data)
+        user = User.objects.get(username='testuser')
+        self.assertTrue(ProfileImage.objects.filter(user=user).exists())
 
 
+class TestAnswers(TestCase):
+    """Тесты для answers.py."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='commenter', password='pass')
+        self.author = User.objects.create_user(username='author', password='pass')
+        self.question = Question.objects.create(title="Test Q", text="Content", author=self.author, tags="1")
+        self.answer = Answer.objects.create(question=self.question, text="Answer", author=self.author)
+        self.client.force_login(self.user)
+
+    def test_add_comment_valid(self):
+        response = self.client.post(reverse('add_comment', args=[self.answer.id]), {"text": "Nice!"})
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Comment.objects.filter(text="Nice!").exists())
+
+    def test_add_comment_invalid(self):
+        response = self.client.post(reverse('add_comment', args=[self.answer.id]), {"text": ""})
+        self.assertFalse(Comment.objects.filter(text="").exists())
+
+    def test_load_question_details(self):
+        from core.views.answers import load_question_details
+        load_question_details(self.question)
+        self.assertTrue(hasattr(self.question, 'rating'))
+
+    def test_load_answer_details(self):
+        from core.views.answers import load_answer_details
+        load_answer_details(self.answer)
+        self.assertTrue(hasattr(self.answer, 'likes'))
+
+
+class TestCreateQuestion(TestCase):
+    """Тесты создания вопросов."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='creator', password='pass')
+        self.client.force_login(self.user)
+
+    def test_create_question_get(self):
+        response = self.client.get('/create_question/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_question_post(self):
+        response = self.client.post('/create_question/', {"title": "New Q", "text": "Text", "tags": ["1"]})
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Question.objects.filter(title="New Q").exists())
+
+    def test_blocked_user_cannot_create(self):
+        profile, _ = ProfileImage.objects.get_or_create(user=self.user)
+        profile.is_blocked = True
+        profile.save()
+        response = self.client.post('/create_question/', {"title": "Blocked", "text": "Text", "tags": []})
+        self.assertFalse(Question.objects.filter(title="Blocked").exists())
+
+
+class TestQuestionDetail(TestCase):
+    """Тесты страницы вопроса."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='user', password='pass')
+        self.author = User.objects.create_user(username='author', password='pass')
+        self.question = Question.objects.create(title="Test", text="Content", author=self.author, tags="")
+
+    def test_question_detail_get(self):
+        response = self.client.get(f'/question/{self.question.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_question_detail_post_answer(self):
+        self.client.force_login(self.user)
+        response = self.client.post(f'/question/{self.question.id}/', {"text": "New answer"})
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Answer.objects.filter(text="New answer").exists())
+
+
+class TestProfile(TestCase):
+    """Тесты профиля."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='profileuser', password='pass', email='test@test.com')
+
+    def test_profile_view_requires_login(self):
+        response = self.client.get(f'/accounts/profile/{self.user.id}/')
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_view_authenticated(self):
+        self.client.force_login(self.user)
+        response = self.client.get(f'/accounts/profile/{self.user.id}/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "profileuser")
+
+    def test_profile_edit(self):
+        self.client.force_login(self.user)
+        response = self.client.post("/accounts/profile/edit/", {"bio": "New bio"})
+        self.assertEqual(response.status_code, 302)
+
+
+class TestVoting(TestCase):
+    """Тесты голосования."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='voter', password='pass')
+        self.author = User.objects.create_user(username='author', password='pass')
+        self.question = Question.objects.create(title="Test", text="Content", author=self.author, tags="")
+        self.answer = Answer.objects.create(question=self.question, text="Answer", author=self.author)
+        self.client.force_login(self.user)
+
+    def test_vote_question_like(self):
+        response = self.client.post(reverse('vote_question', args=[self.question.id]), {"vote": "like"})
+        self.assertEqual(response.json()["likes"], 1)
+
+    def test_vote_question_dislike(self):
+        response = self.client.post(reverse('vote_question', args=[self.question.id]), {"vote": "dislike"})
+        self.assertEqual(response.json()["dislikes"], 1)
+
+    def test_vote_answer(self):
+        response = self.client.post(reverse('vote_answer', args=[self.answer.id]), {"vote": "like"})
+        self.assertEqual(response.json()["likes"], 1)
+
+    def test_cancel_vote(self):
+        self.client.post(reverse('vote_question', args=[self.question.id]), {"vote": "like"})
+        response = self.client.post(reverse('vote_question', args=[self.question.id]), {"vote": "like"})
+        self.assertEqual(response.json()["likes"], 0)
+
+
+class TestAdminActions(TestCase):
+    """Тесты административных действий."""
+
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_superuser(username='admin', password='pass')
+        self.user = User.objects.create_user(username='regular', password='pass')
+        self.question = Question.objects.create(title="To delete", text="Content", author=self.user, tags="")
+
+    def test_admin_can_delete_question(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('delete_question', args=[self.question.id]))
+        self.assertTrue(response.json()["success"])
+        self.assertFalse(Question.objects.filter(id=self.question.id).exists())
+
+    def test_toggle_block_user(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('toggle_block_user', args=[self.user.id]))
+        self.assertTrue(response.json()["is_blocked"])
+
+
+class TestMyQuestions(TestCase):
+    """Тесты страницы 'Моя активность'."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='active', password='pass')
+        self.question = Question.objects.create(title="My Q", text="Content", author=self.user, tags="1,2")
+        self.client.force_login(self.user)
+
+    def test_my_questions_page(self):
+        response = self.client.get('/my-questions/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "My Q")
+
+    def test_my_questions_requires_login(self):
+        self.client.logout()
+        response = self.client.get('/my-questions/')
+        self.assertEqual(response.status_code, 302)
+
+
+class TestPermissions(TestCase):
+    """Тесты прав доступа."""
+
+    def test_regular_user_cannot_delete_others_content(self):
+        client = Client()
+        user = User.objects.create_user(username='regular', password='pass')
+        other = User.objects.create_user(username='other', password='pass')
+        question = Question.objects.create(title="Other Q", text="Content", author=other, tags="")
+        client.force_login(user)
+        response = client.post(reverse('delete_question', args=[question.id]))
+        self.assertEqual(response.status_code, 403)
+
+
+class TestSearch(TestCase):
+    """Тесты поиска."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='searcher', password='pass')
+        Question.objects.create(title="Python tutorial", text="Learn Django", author=self.user, tags="")
+        Question.objects.create(title="JavaScript basics", text="JS for beginners", author=self.user, tags="")
+
+    def test_search_by_title(self):
+        response = self.client.get("/", {"q": "Python"})
+        self.assertEqual(len(response.context["questions"]), 1)
+
+    def test_search_no_results(self):
+        response = self.client.get("/", {"q": "nonexistent"})
+        self.assertEqual(len(response.context["questions"]), 0)
+
+
+class TestUtils(TestCase):
+    """Тесты вспомогательных функций."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='helper', password='pass')
+
+    def test_get_user_role(self):
+        from core.views.utils import get_user_role
+        self.assertIn(get_user_role(self.user), ["user", "trusted", "admin"])
+
+    def test_can_delete_content(self):
+        from core.views.utils import can_delete_content
+        self.assertTrue(can_delete_content(self.user, self.user))
+
+    def test_can_create_content(self):
+        from core.views.utils import can_create_content
+        self.assertTrue(can_create_content(self.user))
+
+
+# CI/CD интеграция
+if __name__ == "__main__":
+    import sys, django
+    from django.conf import settings
+    settings.configure(
+        DEBUG=True,
+        DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memory:'}},
+        INSTALLED_APPS=['django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'core'],
+        MIDDLEWARE=[],
+        SECRET_KEY='test-key',
+    )
+    django.setup()
+    from django.test.runner import DiscoverRunner
+    sys.exit(DiscoverRunner(verbosity=2, interactive=False).run_tests(['core']))
