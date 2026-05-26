@@ -1,0 +1,353 @@
+/* index.css - Стили для главной страницы */
+
+.feed-layout {
+  display: flex;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.feed-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.feed-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+/* ========== СТИЛИ ПОИСКА ========== */
+.search-form {
+  margin-bottom: 24px;
+}
+
+.search-input-wrapper {
+  display: flex;
+  gap: 12px;
+  background: var(--surface);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition);
+}
+
+.search-input-wrapper:focus-within {
+  box-shadow: var(--shadow);
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  transition: all var(--transition);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.search-input::placeholder {
+  color: var(--text-light);
+}
+
+.search-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all var(--transition);
+}
+
+.search-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.search-btn:active {
+  transform: translateY(0);
+}
+
+/* ========== СТИЛИ ТЕГОВ ========== */
+.tags-filter {
+  background: var(--surface);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 20px;
+}
+
+.tags-filter h3 {
+  margin: 0 0 18px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+.tags-cloud {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Стилизация скроллбара */
+.tags-cloud::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tags-cloud::-webkit-scrollbar-track {
+  background: var(--surface-2);
+  border-radius: 10px;
+}
+
+.tags-cloud::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+
+.tags-cloud::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-light);
+}
+
+.tag-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+  background: var(--surface-2);
+  border: 1px solid transparent;
+}
+
+.tag-checkbox:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-light);
+  transform: translateX(4px);
+}
+
+.tag-checkbox.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.tag-checkbox.active .tag-name {
+  color: white;
+}
+
+.tag-checkbox input[type="checkbox"] {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.tag-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text);
+  transition: color var(--transition);
+}
+
+.btn-apply-filter {
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all var(--transition);
+  margin-bottom: 12px;
+}
+
+.btn-apply-filter:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-apply-filter:active {
+  transform: translateY(0);
+}
+
+.clear-filter {
+  display: block;
+  text-align: center;
+  padding: 8px;
+  color: var(--danger);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  transition: all var(--transition);
+}
+
+.clear-filter:hover {
+  background: #fee2e2;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* Стили для тегов внутри вопросов */
+.question-card__tags {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.q-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  text-decoration: none;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  transition: all var(--transition);
+  border: 1px solid transparent;
+}
+
+.q-tag:hover {
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* Кнопка удаления на главной странице */
+.question-card__admin-actions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.delete-question-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #b91c1c;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.delete-question-admin:hover {
+  background: #fecaca;
+  transform: translateY(-1px);
+}
+
+/* Стили для кнопки удаления автора */
+.delete-question-author {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #b91c1c;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.delete-question-author:hover {
+  background: #fecaca;
+  transform: translateY(-1px);
+}
+
+/* Уведомления */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+}
+
+.notification-success {
+  background: #15803d;
+}
+
+.notification-error {
+  background: #b91c1c;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .feed-layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .feed-sidebar {
+    width: 100%;
+  }
+
+  .search-input-wrapper {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .search-input {
+    border-radius: var(--radius-sm);
+  }
+
+  .search-btn {
+    justify-content: center;
+    padding: 10px;
+  }
+}

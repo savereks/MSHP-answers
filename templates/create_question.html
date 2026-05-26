@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-wrapper">
+  <div class="form-card">
+    <h2 class="form-card__title">Задать вопрос</h2>
+    <p class="form-card__subtitle">Опишите вопрос как можно подробнее</p>
+
+    <form action="{% url 'create_question' %}" method="post" class="form">
+      {% csrf_token %}
+
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}" class="form-label">
+            {{ field.label }}
+            {% if field.field.required %}
+              <span class="form-required">*</span>
+            {% endif %}
+          </label>
+          {{ field }}
+          {% if field.help_text %}
+            <small class="form-help-text">{{ field.help_text }}</small>
+          {% endif %}
+          {% if field.errors %}
+            <div class="form-errors">
+              {% for error in field.errors %}
+                <span class="form-error">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button type="submit" class="btn btn-primary btn-block">Опубликовать вопрос</button>
+    </form>
+  </div>
+</div>
+
+<style>
+.form-card {
+  max-width: 700px;
+  margin: 0 auto;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 32px;
+}
+
+.form-card__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.form-card__subtitle {
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.form-required {
+  color: var(--danger);
+  margin-left: 4px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all var(--transition);
+  background: var(--surface);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Стили для множественного выбора тегов */
+.form-group select[multiple] {
+  min-height: 120px;
+  padding: 8px;
+}
+
+.form-group select[multiple] option {
+  padding: 8px;
+  border-radius: 4px;
+  margin: 2px 0;
+}
+
+.form-group select[multiple] option:checked {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.form-help-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.form-errors {
+  margin-top: 4px;
+}
+
+.form-error {
+  font-size: 0.75rem;
+  color: var(--danger);
+}
+
+/* Стили для кнопки */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: none;
+  font-family: inherit;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-block {
+  width: 100%;
+  margin-top: 12px;
+}
+
+@media (max-width: 560px) {
+  .form-card {
+    padding: 20px;
+  }
+
+  .form-card__title {
+    font-size: 1.5rem;
+  }
+}
+</style>
+{% endblock %}

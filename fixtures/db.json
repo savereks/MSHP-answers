@@ -1,0 +1,261 @@
+[
+{
+    "model": "core.tag",
+    "pk": 1,
+    "fields": {
+        "name": "Коты"
+    }
+},
+{
+    "model": "core.tag",
+    "pk": 2,
+    "fields": {
+        "name": "Срачи"
+    }
+},
+{
+    "model": "core.question",
+    "pk": 1,
+    "fields": {
+        "title": "Привет!",
+        "text": "Кто тут",
+        "author": null,
+        "created_at": "2026-04-26T15:57:46.530Z",
+        "tags": []
+    }
+},
+{
+    "model": "core.question",
+    "pk": 2,
+    "fields": {
+        "title": "ЕЕЕЕ",
+        "text": "ЕЕЕЕ",
+        "author": null,
+        "created_at": "2026-04-26T15:58:32.877Z",
+        "tags": []
+    }
+},
+{
+    "model": "core.question",
+    "pk": 3,
+    "fields": {
+        "title": "rrr",
+        "text": "rrr",
+        "author": null,
+        "created_at": "2026-04-26T16:07:09.204Z",
+        "tags": []
+    }
+},
+{
+    "model": "core.question",
+    "pk": 4,
+    "fields": {
+        "title": "rrr",
+        "text": "rrr",
+        "author": null,
+        "created_at": "2026-04-26T16:07:21.733Z",
+        "tags": [
+            1
+        ]
+    }
+},
+{
+    "model": "core.question",
+    "pk": 5,
+    "fields": {
+        "title": "hurghiuegrhieurgh",
+        "text": "eruihiguerhiuferhfe",
+        "author": null,
+        "created_at": "2026-04-26T16:21:40.645Z",
+        "tags": [
+            1,
+            2
+        ]
+    }
+},
+{
+    "model": "core.question",
+    "pk": 6,
+    "fields": {
+        "title": "rwpioerigo",
+        "text": "ijrgoijger",
+        "author": 1,
+        "created_at": "2026-04-26T16:22:31.015Z",
+        "tags": [
+            1
+        ]
+    }
+},
+{
+    "model": "core.question",
+    "pk": 7,
+    "fields": {
+        "title": "dsfsdfsdfsdf",
+        "text": "dsfsdf",
+        "author": 4,
+        "created_at": "2026-05-12T18:42:15.594Z",
+        "tags": [
+            1
+        ]
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 1,
+    "fields": {
+        "user": 1,
+        "question": 1,
+        "answer": null,
+        "created_at": "2026-04-26T15:57:48.379Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 2,
+    "fields": {
+        "user": 1,
+        "question": 4,
+        "answer": null,
+        "created_at": "2026-04-26T16:21:25.744Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 3,
+    "fields": {
+        "user": 1,
+        "question": 3,
+        "answer": null,
+        "created_at": "2026-04-26T16:21:28.455Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 4,
+    "fields": {
+        "user": 2,
+        "question": 4,
+        "answer": null,
+        "created_at": "2026-04-26T16:23:52.701Z",
+        "vote_type": false
+    }
+},
+{
+    "model": "core.answer",
+    "pk": 1,
+    "fields": {
+        "question": 1,
+        "text": "ggg",
+        "author": 1,
+        "created_at": "2026-04-26T16:20:12.038Z",
+        "parent": null
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$1200000$ot4nwFCplsfUToWkiack5F$cdF9thFzQ5rVgWLoZYqyNs12BwVFYJbuB8AOQhyqFN4=",
+        "last_login": "2026-04-26T15:57:34.050Z",
+        "is_superuser": true,
+        "username": "a",
+        "first_name": "",
+        "last_name": "",
+        "email": "a@mail.ru",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2026-04-26T15:57:17.948Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$1200000$WpTNftcz4n9fxWbjP85kpb$/SXafL+pm76E6uxIBh1/JPDDQyT2NnwDPqgRj8CLjSI=",
+        "last_login": "2026-04-26T16:47:32.969Z",
+        "is_superuser": true,
+        "username": "b",
+        "first_name": "",
+        "last_name": "",
+        "email": "b@mail.ru",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2026-04-26T16:23:36.648Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+        "password": "pbkdf2_sha256$1200000$HvhJz6RNq5Bkp4ppmRII39$wSNyY2aUaCgujoY5gl2oI24ox6i09eDcCcoVXtcRPj4=",
+        "last_login": "2026-05-03T16:40:27.089Z",
+        "is_superuser": true,
+        "username": "z",
+        "first_name": "",
+        "last_name": "",
+        "email": "z@yandex.ru",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2026-05-03T16:39:55.019Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 4,
+    "fields": {
+        "password": "pbkdf2_sha256$1200000$7nMeXL10owNpfa4QZQRieX$8ERbgoA5fLb9Bl5sa46ZZnTtYuHu8jbk9POo+33NenU=",
+        "last_login": "2026-05-12T18:41:57.635Z",
+        "is_superuser": false,
+        "username": "Sania123",
+        "first_name": "",
+        "last_name": "",
+        "email": "Sanioc@gmail.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-05-12T18:41:17.544Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "3rgj6bcbpbss75uoyzrmxc5ilznjc3n6",
+    "fields": {
+        "session_data": ".eJxVjEEOwiAQAP_C2RAosBCP3n0DWXZBqoYmpT0Z_64kPeh1ZjIvEXHfatx7XuPM4iyMOP2yhPTIbQi-Y7stkpa2rXOSI5GH7fK6cH5ejvZvULHXsQWDukzasbMuaQvOsvJT0MGjge-HVSg2k2WiYhSA8iYV0DkQMlgQ7w_GtDeX:1wJZrn:l8ebYMIGWT3EsK6aM6kJmeoTCnMOq_8vl84jo-j_TZ8",
+        "expire_date": "2026-05-17T16:40:27.094Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "azlclwdj89dsebwol4yq8b20293ts54q",
+    "fields": {
+        "session_data": ".eJxVjEEOwiAQRe_C2pACZUCX7nsGMswMtmpoUtqV8e7apAvd_vfef6mE2zqmrcmSJlYXZdXpd8tID6k74DvW26xprusyZb0r-qBNDzPL83q4fwcjtvFbCwB4ixkzFOe9ieQQuTNWbAYqveE-ckDqvaMS5BzJoO9CLK4DxxLU-wPygjgs:1wH2Go:8T8ydKbvduztnqozOkwAFWlomZiIW2xEeNaF_hqVIbE",
+        "expire_date": "2026-05-10T16:23:46.607Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "gudlsi6ole9clfnmoo76r13mnaa6mi4n",
+    "fields": {
+        "session_data": ".eJxVjEEOwiAQRe_C2pACZUCX7nsGMswMtmpoUtqV8e7apAvd_vfef6mE2zqmrcmSJlYXZdXpd8tID6k74DvW26xprusyZb0r-qBNDzPL83q4fwcjtvFbCwB4ixkzFOe9ieQQuTNWbAYqveE-ckDqvaMS5BzJoO9CLK4DxxLU-wPygjgs:1wH2do:xE32iGBoVcxaKN8sptguFZMAEeiFZB3M3t7j85qmOwQ",
+        "expire_date": "2026-05-10T16:47:32.974Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "j5o6a2m4u8fc5n676szmql2oko2o2hqu",
+    "fields": {
+        "session_data": ".eJxVjEEOwiAQRe_C2hBgCi0u3fcMZJgBqRqalHZlvLsh6UK3_7333yLgsZdwtLSFhcVVDOLyu0WkZ6od8APrfZW01n1bouyKPGmT88rpdTvdv4OCrfRaeQMpjto576JBssiIjhUnMJC1AjVAHonipK1iRyYj5ehhQshos_h8AfELOKo:1wMs3J:etD30ocehsh_N-UZcQ34UiBQytiQN5ZceszVG4CyKTs",
+        "expire_date": "2026-05-26T18:41:57.640Z"
+    }
+}
+]

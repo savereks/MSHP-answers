@@ -1,0 +1,411 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-wrapper">
+  <div class="form-card">
+    <h2 class="form-card__title">Редактирование профиля</h2>
+    <p class="form-card__subtitle">Обновите информацию о себе</p>
+
+    <form method="post" enctype="multipart/form-data" class="form">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label class="form-label">Текущая аватарка</label>
+        <div class="current-avatar-wrapper">
+          <img src="{{ request.user.profile.avatar.url }}"
+               alt="Аватарка"
+               class="current-avatar">
+          <div class="avatar-hint">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            <span>Рекомендуемый размер: 200x200 пикселей</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ form.avatar.label }}</label>
+
+        <!-- Кастомная кнопка загрузки файла -->
+        <div class="file-upload-wrapper">
+          <div class="file-upload-btn-wrapper">
+            <button type="button" class="btn btn-secondary file-upload-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              Выбрать файл
+            </button>
+            <input type="file"
+                   name="avatar"
+                   id="{{ form.avatar.id_for_label }}"
+                   accept="image/*"
+                   class="file-upload-input">
+          </div>
+          <div class="file-upload-info">
+            <span class="file-name" id="file-name-display">Файл не выбран</span>
+            <span class="file-size-limit">Макс. 5MB</span>
+          </div>
+        </div>
+
+        {% if form.avatar.help_text %}
+          <small class="form-help-text">{{ form.avatar.help_text }}</small>
+        {% endif %}
+        {% if form.avatar.errors %}
+          <div class="form-errors">
+            {% for error in form.avatar.errors %}
+              <span class="form-error">{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.bio.id_for_label }}" class="form-label">
+          {{ form.bio.label }}
+        </label>
+        {{ form.bio }}
+        {% if form.bio.help_text %}
+          <small class="form-help-text">{{ form.bio.help_text }}</small>
+        {% endif %}
+        <div class="bio-counter">
+          <span id="bio-chars">0</span> / <span id="bio-max">500</span> символов
+        </div>
+        {% if form.bio.errors %}
+          <div class="form-errors">
+            {% for error in form.bio.errors %}
+              <span class="form-error">{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <a href="{% url 'profile' request.user.id %}" class="btn btn-secondary">Отмена</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.form-card {
+  max-width: 600px;
+  margin: 0 auto;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 32px;
+}
+
+.form-card__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.form-card__subtitle {
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+/* Текущая аватарка */
+.current-avatar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 16px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.current-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.avatar-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--surface);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.avatar-hint svg {
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+/* Кастомная кнопка выбора файла */
+.file-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.file-upload-btn-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.file-upload-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-upload-btn {
+  pointer-events: none;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  gap: 8px;
+}
+
+.file-upload-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.file-name {
+  color: var(--text);
+  font-family: monospace;
+  font-size: 0.85rem;
+  word-break: break-all;
+}
+
+.file-size-limit {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  background: var(--surface);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+/* Поля формы */
+.form-group textarea {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all var(--transition);
+  background: var(--surface);
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* Счётчик символов */
+.bio-counter {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: -4px;
+}
+
+.bio-counter span {
+  font-weight: 600;
+}
+
+.bio-counter span:first-child {
+  color: var(--primary);
+}
+
+.form-help-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.form-errors {
+  margin-top: 4px;
+}
+
+.form-error {
+  font-size: 0.75rem;
+  color: var(--danger);
+}
+
+/* Кнопки действий */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: none;
+  font-family: inherit;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  flex: 1;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  flex: 1;
+}
+
+.btn-secondary:hover {
+  background: var(--border);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* Адаптивность */
+@media (max-width: 560px) {
+  .form-card {
+    padding: 20px;
+  }
+
+  .form-card__title {
+    font-size: 1.5rem;
+  }
+
+  .current-avatar-wrapper {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .file-upload-info {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+}
+</style>
+
+<script>
+// Отображение имени выбранного файла
+document.addEventListener('DOMContentLoaded', function() {
+  const fileInput = document.querySelector('.file-upload-input');
+  const fileNameDisplay = document.getElementById('file-name-display');
+
+  if (fileInput && fileNameDisplay) {
+    fileInput.addEventListener('change', function(e) {
+      if (this.files && this.files.length > 0) {
+        const fileName = this.files[0].name;
+        const fileSize = (this.files[0].size / 1024 / 1024).toFixed(2);
+        fileNameDisplay.textContent = `${fileName} (${fileSize} MB)`;
+        fileNameDisplay.style.color = 'var(--primary)';
+      } else {
+        fileNameDisplay.textContent = 'Файл не выбран';
+        fileNameDisplay.style.color = '';
+      }
+    });
+  }
+
+  // Счётчик символов для bio
+  const bioTextarea = document.querySelector('textarea[name="bio"]');
+  const bioCounter = document.getElementById('bio-chars');
+
+  if (bioTextarea && bioCounter) {
+    const maxChars = 500;
+
+    function updateCounter() {
+      const currentLength = bioTextarea.value.length;
+      bioCounter.textContent = currentLength;
+
+      if (currentLength > maxChars) {
+        bioCounter.style.color = 'var(--danger)';
+        bioTextarea.style.borderColor = 'var(--danger)';
+      } else {
+        bioCounter.style.color = 'var(--primary)';
+        bioTextarea.style.borderColor = '';
+      }
+    }
+
+    bioTextarea.addEventListener('input', updateCounter);
+    updateCounter(); // Инициализация
+  }
+});
+</script>
+{% endblock %}
