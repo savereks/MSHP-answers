@@ -1,6 +1,43 @@
-# Автоматическая сборка и публикация документации через GitLab Pages
+# Автоматическое тестирование и сборка документации через GitLab Pages
+
+stages:
+  - test
+  - deploy
+
+# Переменные окружения
+variables:
+  PYTHON_VERSION: "3.12"
+  DJANGO_SETTINGS_MODULE: "core.settings"
+
+# Этап автоматического тестирования
+test:
+  stage: test
+  image: python:${PYTHON_VERSION}
+  before_script:
+    - pip install django
+    - pip install coverage
+  script:
+    - python manage.py test core --verbosity=2
+    # Измерение покрытия кода
+    - coverage run manage.py test core
+    - coverage xml -o coverage.xml
+  artifacts:
+    paths:
+      - coverage.xml
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH =~ /^feature\/.*$/
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# Этап сборки документации через GitLab Pages
 pages:
   stage: deploy
+  image: python:${PYTHON_VERSION}
   script:
     - pip install sphinx sphinx-rtd-theme
     - cd docs

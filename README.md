@@ -82,6 +82,10 @@
 - pip (менеджер пакетов Python)
 - Git (опционально)
 
+### Тесты 
+
+[![coverage report](https://gitlab.informatics.ru/2025-2026/hse/s104m/mshp-answers/badges/main/coverage.svg)](https://gitlab.informatics.ru/2025-2026/hse/s104m/mshp-answers/-/commits/main)
+
 ### 1. Клонирование репозитория
 
 ```bash
