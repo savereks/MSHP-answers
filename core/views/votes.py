@@ -12,17 +12,28 @@ from core.models import Question, Answer, Comment, Vote
 logger = logging.getLogger(__name__)
 
 
-def _process_vote(existing_vote, vote_type):
-    """Обрабатывает логику голосования."""
-    if existing_vote:
-        if existing_vote.vote_type == vote_type:
-            existing_vote.delete()
-            return 'cancelled'
-        else:
-            existing_vote.vote_type = vote_type
-            existing_vote.save()
-            return 'changed'
-    return 'created'
+def _process_vote(existing_vote, vote_type, user, **target):
+    """
+    Обрабатывает логику голосования.
+
+    Args:
+        existing_vote: Существующий голос или None
+        vote_type: Тип голоса (True=лайк, False=дизлайк)
+        user: Пользователь, который голосует
+        **target: Цель голосования (question=..., answer=..., comment=...)
+
+    Returns:
+        str: Статус операции ('created', 'cancelled', 'changed')
+    """
+    if existing_vote is None:
+        Vote.objects.create(user=user, vote_type=vote_type, **target)
+        return 'created'
+    if existing_vote.vote_type == vote_type:
+        existing_vote.delete()
+        return 'cancelled'
+    existing_vote.vote_type = vote_type
+    existing_vote.save()
+    return 'changed'
 
 
 @login_required(login_url='/accounts/login/')
@@ -47,7 +58,13 @@ def vote_question(request, question_id):
         question=question
     ).first()
 
-    _process_vote(existing_vote, vote_type)
+    _process_vote(
+        existing_vote,
+        vote_type,
+        request.user,
+        question=question
+    )
+
     logger.info(
         f"Пользователь {request.user.username} "
         f"{'лайкнул' if vote_type else 'дизлайкнул'} вопрос {question_id}"
@@ -85,19 +102,23 @@ def vote_answer(request, answer_id):
         )
         return JsonResponse({'error': 'invalid vote'}, status=400)
 
-    # Убраны лишние фильтры comment__isnull=True
     existing_vote = Vote.objects.filter(
         user=request.user,
         answer=answer
     ).first()
 
-    _process_vote(existing_vote, vote_type)
+    _process_vote(
+        existing_vote,
+        vote_type,
+        request.user,
+        answer=answer
+    )
+
     logger.info(
         f"Пользователь {request.user.username} "
         f"{'лайкнул' if vote_type else 'дизлайкнул'} ответ {answer_id}"
     )
 
-    # Убраны лишние фильтры comment__isnull=True
     answer_votes = Vote.objects.filter(answer=answer)
     likes = answer_votes.filter(vote_type=True).count()
     dislikes = answer_votes.filter(vote_type=False).count()
@@ -135,7 +156,13 @@ def vote_comment(request, comment_id):
         comment=comment
     ).first()
 
-    _process_vote(existing_vote, vote_type)
+    _process_vote(
+        existing_vote,
+        vote_type,
+        request.user,
+        comment=comment
+    )
+
     logger.info(
         f"Пользователь {request.user.username} "
         f"{'лайкнул' if vote_type else 'дизлайкнул'} комментарий {comment_id}"

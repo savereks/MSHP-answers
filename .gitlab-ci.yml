@@ -13,7 +13,6 @@ cache:
     - .cache/pip
     - docs/_build/
 
-# Шаблон для Python
 .python_setup: &python_setup
   before_script:
     - apt-get update -qq && apt-get install -y -qq graphviz
@@ -27,7 +26,6 @@ test:
   image: python:${PYTHON_VERSION}-slim
   <<: *python_setup
   script:
-    # Запуск тестов с покрытием
     - pip install coverage
     - coverage run --source='core' manage.py test core --verbosity=2
     - coverage report -m
@@ -42,12 +40,7 @@ test:
       - htmlcov/
     expire_in: 1 week
   coverage: '/TOTAL.*\s+(\d+%)$/'
-  only:
-    - main
-    - develop
-    - merge_requests
 
-# ========== 2. СОЗДАНИЕ ТЕСТОВОЙ ДОКУМЕНТАЦИИ ==========
 docs-build:
   stage: docs
   image: python:${PYTHON_VERSION}-slim
@@ -64,11 +57,7 @@ docs-build:
       - docs/_build/html/
       - docs/_build/latex/*.pdf
     expire_in: 1 week
-  only:
-    - main
-    - develop
 
-# ========== 3. ПУБЛИКАЦИЯ НА GITLAB PAGES ==========
 pages:
   stage: pages
   image: alpine:latest
