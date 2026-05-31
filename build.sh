@@ -7,8 +7,8 @@ pip install -r requirements.txt
 # Сборка статических файлов для WhiteNoise
 python manage.py collectstatic --no-input
 
-# Применение миграций к новой базе данных PostgreSQL
+# Применение миграций к базе данных PostgreSQL
 python manage.py migrate
 
-# 4. ВРЕМЕННАЯ СТРОКА: Импорт ваших данных из SQLite в PostgreSQL
-python manage.py loaddata data.json
+# 4. ВРЕМЕННАЯ СТРОКА: Импорт данных из SQLite в PostgreSQL
+# python manage.py loaddata data.json

@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-$ptm13$xefxahq!r#*6z*
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Отключаем дебаг в продакшене, но на тестах он будет включён. Тут логическая операция для получения булевого True
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 if DEBUG:
     # Хосты при разработке
