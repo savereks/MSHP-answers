@@ -4,5 +4,7 @@ venv
 __pycache__
 core/migrations/__pycache__
 db.sqlite3
+staticfiles/
 logs/
+gitlab-runner.exe
 *.log

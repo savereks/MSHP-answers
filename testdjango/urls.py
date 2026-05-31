@@ -8,6 +8,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import LogoutView
 from django.urls import path
+from django.urls import re_path
+from django.views.static import serve
 
 import core.views as views
 
@@ -46,3 +48,8 @@ urlpatterns = [
 # Добавление URL для медиафайлов в режиме разработки
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # Принудительная раздача медиа-файлов при выключенном DEBUG (для локальной проверки и Render)
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    ]

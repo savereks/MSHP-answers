@@ -1,0 +1,1162 @@
+[
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$1200000$oVogPSBzBCBdLGoZ1LB1UE$HqjqiNsz5P2G5sUfQqIuYbWfdMQsPDPoMbe3C7pmyrE=",
+        "last_login": "2026-05-30T10:34:40.629Z",
+        "is_superuser": true,
+        "username": "admin",
+        "first_name": "",
+        "last_name": "",
+        "email": "admin@mail.ru",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2026-05-30T10:18:28.401Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$1200000$kVHTmqaOXGCSCYXxSMkmi8$89n6pXB13v7IRBU8+q4TB+Ge+7I1Rm7Du0kObhP//sg=",
+        "last_login": "2026-05-30T10:37:45.611Z",
+        "is_superuser": false,
+        "username": "maria_python",
+        "first_name": "",
+        "last_name": "",
+        "email": "maria@example.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-05-30T10:22:03.895Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$1200000$DcnZuNSdO6TDV29G8rhjqP$mv5mvn7WseiqYRTu2MoLMhxW52HWuXASvs7IDmOI4sM=",
+        "last_login": "2026-05-30T10:40:02.482Z",
+        "is_superuser": false,
+        "username": "django_fan",
+        "first_name": "",
+        "last_name": "",
+        "email": "dmitry@example.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-05-30T10:24:47.158Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$1200000$OZBrYHxhkDpidBzFmFHCgC$CdRhQOhyiLsfweNrayDLmxSCy0MZ/S9stwQV9vBu+1w=",
+        "last_login": "2026-05-30T10:42:57.903Z",
+        "is_superuser": false,
+        "username": "beginner_coder",
+        "first_name": "",
+        "last_name": "",
+        "email": "anna@example.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-05-30T10:27:18.152Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$1200000$N6niI7SJgLs6qvczcR9fNo$gO7H5etG7rO2GKHK7VgQoyXPZl98SroEvnkMBJuMp0A=",
+        "last_login": "2026-05-30T10:45:40.509Z",
+        "is_superuser": false,
+        "username": "java_guru",
+        "first_name": "",
+        "last_name": "",
+        "email": "sergey@example.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-05-30T10:28:26.454Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$1200000$0GJc0u5e5pjFlRE1qNKoUr$Aw786UGulSgM1iY9cY3NZNNLY3jOmAA1GuQbDRjBFPc=",
+        "last_login": "2026-05-30T10:52:39.084Z",
+        "is_superuser": false,
+        "username": "web_dev",
+        "first_name": "",
+        "last_name": "",
+        "email": "oleg@example.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-05-30T10:30:03.382Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "duxhc0azacp3ch7amecd2g1sm6fur6zl",
+    "fields": {
+        "session_data": ".eJxVjEEOwiAQRe_C2hBAQHDpvmcgM8MgVUOT0q6Md7dNutDtf-_9t0iwLjWtnec0ZnEVXpx-NwR6cttBfkC7T5Kmtswjyl2RB-1ymDK_bof7d1Ch160mxS54ipFNIKNtAQzobeRcWDvnUQGjDV77EliZGC8KNmKLgzNpJPH5AvVBOHA:1wTHJ1:P0OLobvlQiGXfkUTdbHrKGZG9fFRJjomvZVzFWXk9j4",
+        "expire_date": "2026-06-13T10:52:39.097Z"
+    }
+},
+{
+    "model": "core.comment",
+    "pk": 1,
+    "fields": {
+        "text": "Спасибо! Помогло. Оказывается, у меня была старая миграция, которую я забыл удалить.",
+        "author": [
+            "beginner_coder"
+        ],
+        "question": null,
+        "answer": 1,
+        "created_at": "2026-05-30T10:43:31.535Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.comment",
+    "pk": 2,
+    "fields": {
+        "text": "О! Это даже лучше.",
+        "author": [
+            "beginner_coder"
+        ],
+        "question": null,
+        "answer": 3,
+        "created_at": "2026-05-30T10:45:03.687Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.comment",
+    "pk": 3,
+    "fields": {
+        "text": "Попробовал Django на небольшом проекте — впечатлён! Админка появилась за 5 минут. Решил изучать дальше. Спасибо за советы!",
+        "author": [
+            "java_guru"
+        ],
+        "question": null,
+        "answer": 9,
+        "created_at": "2026-05-30T10:48:33.335Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.answer",
+    "pk": 1,
+    "fields": {
+        "question": 3,
+        "text": "Вот рабочий способ:\r\n\r\nconst token = document.querySelector('[name=csrfmiddlewaretoken]').value;\r\n\r\nfetch('/vote/', {\r\n    method: 'POST',\r\n    headers: {\r\n        'X-CSRFToken': token,\r\n        'Content-Type': 'application/x-www-form-urlencoded',\r\n    },\r\n    body: 'vote=like'\r\n})\r\n\r\nТолько убедитесь, что у вас на странице есть {% csrf_token %}.",
+        "author": [
+            "web_dev"
+        ],
+        "created_at": "2026-05-30T10:32:44.294Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.answer",
+    "pk": 2,
+    "fields": {
+        "question": 1,
+        "text": "Проблема в том, что у вас уже есть столбец в БД. Сделайте:\r\n\r\n1. python manage.py makemigrations --name add_is_active\r\n2. python manage.py migrate --fake\r\n3. Затем создайте новую миграцию с default=0 и примените\r\n\r\nИли просто удалите старый файл миграции и создайте заново.",
+        "author": [
+            "admin"
+        ],
+        "created_at": "2026-05-30T10:36:04.172Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.answer",
+    "pk": 3,
+    "fields": {
+        "question": 3,
+        "text": "Можно ещё проще — передавать CSRF-токен во всех AJAX-запросах автоматически:\r\n\r\n$.ajaxSetup({\r\n    headers: { 'X-CSRFToken': getCookie('csrftoken') }\r\n});\r\n\r\nНо getCookie() нужно написать самому.",
+        "author": [
+            "admin"
+        ],
+        "created_at": "2026-05-30T10:36:50.016Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.answer",
+    "pk": 4,
+    "fields": {
+        "question": 5,
+        "text": "В settings.py нужно установить:\r\n\r\nDEBUG = False\r\nALLOWED_HOSTS = ['*']  # для теста\r\n\r\nИ создать шаблон `templates/404.html`. При DEBUG = True страница 404 не покажется (будет стандартная отладка Django).",
+        "author": [
+            "admin"
+        ],
+        "created_at": "2026-05-30T10:37:13.635Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.answer",
+    "pk": 5,
+    "fields": {
+        "question": 6,
+        "text": "Я использую такую структуру:\r\n\r\nproject/\r\n├── apps/           # Все приложения\r\n│   ├── users/\r\n│   ├── posts/\r\n│   └── api/\r\n├── config/         # Настройки проекта\r\n│   ├── settings/\r\n│   │   ├── base.py\r\n│   │   ├── dev.py\r\n│   │   └── prod.py\r\n│   └── urls.py\r\n├── static/\r\n├── media/\r\n├── templates/      # Глобальные шаблоны\r\n└── requirements/\r\n\r\nШаблоны лучше держать в папке templates приложения, а статику — в static. Для крупных проектов советую выносить настройки в отдельную папку.",
+        "author": [
+            "maria_python"
+        ],
+        "created_at": "2026-05-30T10:38:04.381Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.answer",
+    "pk": 6,
+    "fields": {
+        "question": 2,
+        "text": "Используйте такой подход:\r\n\r\nquestions = Question.objects.annotate(\r\n    answers_count=Count('answer')\r\n).prefetch_related(\r\n    Prefetch('answer_set', queryset=Answer.objects.order_by('-created_at')[:5])\r\n)\r\n\r\nПервый запрос получит все вопросы с количеством ответов. Второй - последние 5 ответов для каждого вопроса. В итоге будет 2 запроса, а не N+1.",
+        "author": [
+            "maria_python"
+        ],
+        "created_at": "2026-05-30T10:39:10.606Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.answer",
+    "pk": 7,
+    "fields": {
+        "question": 6,
+        "text": "Ещё рекомендую создать папку core для общих утилит (миксины, декораторы, базовые модели). И обязательно используйте environment variables для секретных ключей!",
+        "author": [
+            "django_fan"
+        ],
+        "created_at": "2026-05-30T10:40:25.164Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.answer",
+    "pk": 8,
+    "fields": {
+        "question": 2,
+        "text": "Ещё полезный совет: используйте django-debug-toolbar. Он показывает все запросы и помогает найти проблемные места. После оптимизации количество запросов упало с 50 до 3!",
+        "author": [
+            "django_fan"
+        ],
+        "created_at": "2026-05-30T10:41:35.339Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.answer",
+    "pk": 9,
+    "fields": {
+        "question": 4,
+        "text": "Django намного быстрее для разработки. Админка, ORM, формы — всё из коробки. Но Spring даёт больше контроля. Для стартапа однозначно Django, для enterprise — Spring.\r\n\r\nПлюсы Django:\r\n- Скорость разработки\r\n- Встроенная админка\r\n- Отличная документация\r\n\r\nМинусы:\r\n- Медленнее Spring\r\n- Меньше вакансий",
+        "author": [
+            "django_fan"
+        ],
+        "created_at": "2026-05-30T10:42:24.361Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.answer",
+    "pk": 10,
+    "fields": {
+        "question": 1,
+        "text": "Если данных ещё нет, проще всего удалить БД и миграции, потом создать заново. Только сделайте бэкап, если данные важны!",
+        "author": [
+            "java_guru"
+        ],
+        "created_at": "2026-05-30T10:46:42.893Z",
+        "parent": null
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 1,
+    "fields": {
+        "user": [
+            "maria_python"
+        ],
+        "question": 1,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:22:57.732Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 2,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": 2,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:25:36.621Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 3,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": 1,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:25:37.337Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 4,
+    "fields": {
+        "user": [
+            "beginner_coder"
+        ],
+        "question": 3,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:27:50.140Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 5,
+    "fields": {
+        "user": [
+            "beginner_coder"
+        ],
+        "question": 2,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:27:50.835Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 6,
+    "fields": {
+        "user": [
+            "beginner_coder"
+        ],
+        "question": 1,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:27:51.566Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 7,
+    "fields": {
+        "user": [
+            "java_guru"
+        ],
+        "question": 4,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:29:42.678Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 8,
+    "fields": {
+        "user": [
+            "java_guru"
+        ],
+        "question": 3,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:29:43.508Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 9,
+    "fields": {
+        "user": [
+            "java_guru"
+        ],
+        "question": 2,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:29:44.241Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 10,
+    "fields": {
+        "user": [
+            "java_guru"
+        ],
+        "question": 1,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:29:45.479Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 11,
+    "fields": {
+        "user": [
+            "web_dev"
+        ],
+        "question": 5,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:30:46.622Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 13,
+    "fields": {
+        "user": [
+            "web_dev"
+        ],
+        "question": 3,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:30:48.067Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 14,
+    "fields": {
+        "user": [
+            "web_dev"
+        ],
+        "question": 2,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:30:49.823Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 15,
+    "fields": {
+        "user": [
+            "web_dev"
+        ],
+        "question": 1,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:30:50.603Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 16,
+    "fields": {
+        "user": [
+            "web_dev"
+        ],
+        "question": null,
+        "answer": 1,
+        "comment": null,
+        "created_at": "2026-05-30T10:32:46.190Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 17,
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "question": 6,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:35:19.938Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 18,
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "question": 5,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:35:20.696Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 19,
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "question": 4,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:35:22.998Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 21,
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "question": 2,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:35:27.096Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 22,
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "question": 1,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:35:28.626Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 23,
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "question": null,
+        "answer": 2,
+        "comment": null,
+        "created_at": "2026-05-30T10:36:05.313Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 24,
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "question": null,
+        "answer": 1,
+        "comment": null,
+        "created_at": "2026-05-30T10:36:51.243Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 25,
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "question": null,
+        "answer": 3,
+        "comment": null,
+        "created_at": "2026-05-30T10:36:51.950Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 26,
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "question": 3,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:36:53.411Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 27,
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "question": null,
+        "answer": 4,
+        "comment": null,
+        "created_at": "2026-05-30T10:37:14.760Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 28,
+    "fields": {
+        "user": [
+            "maria_python"
+        ],
+        "question": null,
+        "answer": 5,
+        "comment": null,
+        "created_at": "2026-05-30T10:38:05.478Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 29,
+    "fields": {
+        "user": [
+            "maria_python"
+        ],
+        "question": null,
+        "answer": 6,
+        "comment": null,
+        "created_at": "2026-05-30T10:39:12.384Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 30,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": null,
+        "answer": 5,
+        "comment": null,
+        "created_at": "2026-05-30T10:40:26.790Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 31,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": null,
+        "answer": 7,
+        "comment": null,
+        "created_at": "2026-05-30T10:40:28.102Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 32,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": 6,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:40:30.042Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 33,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": null,
+        "answer": 4,
+        "comment": null,
+        "created_at": "2026-05-30T10:40:50.248Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 34,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": null,
+        "answer": 3,
+        "comment": null,
+        "created_at": "2026-05-30T10:40:55.200Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 35,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": null,
+        "answer": 1,
+        "comment": null,
+        "created_at": "2026-05-30T10:40:56.337Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 36,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": null,
+        "answer": 2,
+        "comment": null,
+        "created_at": "2026-05-30T10:41:01.043Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 38,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": null,
+        "answer": 6,
+        "comment": null,
+        "created_at": "2026-05-30T10:41:37.766Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 39,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": null,
+        "answer": 8,
+        "comment": null,
+        "created_at": "2026-05-30T10:41:38.766Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 40,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": null,
+        "answer": 9,
+        "comment": null,
+        "created_at": "2026-05-30T10:42:25.436Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 41,
+    "fields": {
+        "user": [
+            "django_fan"
+        ],
+        "question": 4,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:42:29.149Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 43,
+    "fields": {
+        "user": [
+            "beginner_coder"
+        ],
+        "question": null,
+        "answer": null,
+        "comment": 1,
+        "created_at": "2026-05-30T10:43:40.229Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 45,
+    "fields": {
+        "user": [
+            "beginner_coder"
+        ],
+        "question": null,
+        "answer": 3,
+        "comment": null,
+        "created_at": "2026-05-30T10:43:45.019Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 46,
+    "fields": {
+        "user": [
+            "beginner_coder"
+        ],
+        "question": null,
+        "answer": 1,
+        "comment": null,
+        "created_at": "2026-05-30T10:43:47.398Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 47,
+    "fields": {
+        "user": [
+            "beginner_coder"
+        ],
+        "question": null,
+        "answer": null,
+        "comment": 2,
+        "created_at": "2026-05-30T10:45:15.985Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 49,
+    "fields": {
+        "user": [
+            "java_guru"
+        ],
+        "question": null,
+        "answer": null,
+        "comment": 3,
+        "created_at": "2026-05-30T10:48:37.263Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 50,
+    "fields": {
+        "user": [
+            "java_guru"
+        ],
+        "question": null,
+        "answer": 9,
+        "comment": null,
+        "created_at": "2026-05-30T10:48:37.951Z",
+        "vote_type": false
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 51,
+    "fields": {
+        "user": [
+            "java_guru"
+        ],
+        "question": null,
+        "answer": 4,
+        "comment": null,
+        "created_at": "2026-05-30T10:49:03.144Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 52,
+    "fields": {
+        "user": [
+            "java_guru"
+        ],
+        "question": null,
+        "answer": 2,
+        "comment": null,
+        "created_at": "2026-05-30T10:49:09.874Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 54,
+    "fields": {
+        "user": [
+            "java_guru"
+        ],
+        "question": null,
+        "answer": 5,
+        "comment": null,
+        "created_at": "2026-05-30T10:49:18.688Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 59,
+    "fields": {
+        "user": [
+            "java_guru"
+        ],
+        "question": 6,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:50:53.937Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 60,
+    "fields": {
+        "user": [
+            "java_guru"
+        ],
+        "question": null,
+        "answer": 10,
+        "comment": null,
+        "created_at": "2026-05-30T10:52:08.900Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 61,
+    "fields": {
+        "user": [
+            "web_dev"
+        ],
+        "question": null,
+        "answer": 10,
+        "comment": null,
+        "created_at": "2026-05-30T10:53:01.056Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 62,
+    "fields": {
+        "user": [
+            "web_dev"
+        ],
+        "question": 4,
+        "answer": null,
+        "comment": null,
+        "created_at": "2026-05-30T10:53:14.761Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.vote",
+    "pk": 63,
+    "fields": {
+        "user": [
+            "web_dev"
+        ],
+        "question": null,
+        "answer": null,
+        "comment": 3,
+        "created_at": "2026-05-30T10:53:18.820Z",
+        "vote_type": true
+    }
+},
+{
+    "model": "core.question",
+    "pk": 1,
+    "fields": {
+        "title": "Почему не работают миграции после добавления нового поля в модель?",
+        "text": "Добавил новое поле is_active = models.BooleanField(default=True) в модель UserProfile. Запускаю makemigrations - создаётся файл миграции, но при migrate получаю ошибку: \"column already exists\". Что делать?",
+        "author": [
+            "maria_python"
+        ],
+        "created_at": "2026-05-30T10:22:55.274Z",
+        "tags": "2"
+    }
+},
+{
+    "model": "core.question",
+    "pk": 2,
+    "fields": {
+        "title": "Как оптимизировать запросы с select_related и prefetch_related?",
+        "text": "У меня есть модели Question, Answer и Comment. Нужно вывести список вопросов с количеством ответов и последними комментариями. Как правильно использовать select_related и prefetch_related, чтобы не делать 100500 запросов к БД?",
+        "author": [
+            "django_fan"
+        ],
+        "created_at": "2026-05-30T10:25:24.456Z",
+        "tags": "2,7"
+    }
+},
+{
+    "model": "core.question",
+    "pk": 3,
+    "fields": {
+        "title": "Как отправить POST-запрос из JavaScript с CSRF-токеном?",
+        "text": "Пишу голосование на сайте. Отправляю fetch POST /vote/, но получаю ошибку 403 Forbidden. Как правильно передать CSRF-токен? Вставил {% csrf_token %} в форму, но fetch не видит его.",
+        "author": [
+            "beginner_coder"
+        ],
+        "created_at": "2026-05-30T10:27:45.350Z",
+        "tags": "2,3"
+    }
+},
+{
+    "model": "core.question",
+    "pk": 4,
+    "fields": {
+        "title": "Стоит ли переходить с Java Spring на Django для веб-разработки?",
+        "text": "10 лет пишу на Java (Spring Boot, Hibernate). Заметил, что Django набирает популярность. Стоит ли изучать и переходить? Какие преимущества у Django перед Spring?",
+        "author": [
+            "java_guru"
+        ],
+        "created_at": "2026-05-30T10:29:21.127Z",
+        "tags": "1,2"
+    }
+},
+{
+    "model": "core.question",
+    "pk": 5,
+    "fields": {
+        "title": "Как сделать кастомную страницу 404 в Django?",
+        "text": "Хочу сделать красивую страницу 404. Знаю, что нужно создать шаблон 404.html, но он не отображается. Что ещё нужно настроить в settings.py?",
+        "author": [
+            "web_dev"
+        ],
+        "created_at": "2026-05-30T10:30:42.149Z",
+        "tags": "2"
+    }
+},
+{
+    "model": "core.question",
+    "pk": 6,
+    "fields": {
+        "title": "Как правильно организовать структуру Django-проекта для среднего приложения?",
+        "text": "Разрабатываю свой первый крупный проект на Django. Подскажите, как лучше организовать структуру папок и файлов? Нужно ли выносить приложения в отдельную папку? Как быть с шаблонами и статикой?",
+        "author": [
+            "admin"
+        ],
+        "created_at": "2026-05-30T10:35:14.138Z",
+        "tags": "1,2"
+    }
+},
+{
+    "model": "core.profileimage",
+    "pk": 1,
+    "fields": {
+        "avatar": "profile_pics/default.jpg",
+        "user": [
+            "admin"
+        ],
+        "bio": "",
+        "is_blocked": false
+    }
+},
+{
+    "model": "core.profileimage",
+    "pk": 2,
+    "fields": {
+        "avatar": "profile_pics/default.jpg",
+        "user": [
+            "maria_python"
+        ],
+        "bio": "",
+        "is_blocked": false
+    }
+},
+{
+    "model": "core.profileimage",
+    "pk": 3,
+    "fields": {
+        "avatar": "profile_pics/default.jpg",
+        "user": [
+            "django_fan"
+        ],
+        "bio": "",
+        "is_blocked": false
+    }
+},
+{
+    "model": "core.profileimage",
+    "pk": 4,
+    "fields": {
+        "avatar": "profile_pics/default.jpg",
+        "user": [
+            "beginner_coder"
+        ],
+        "bio": "",
+        "is_blocked": false
+    }
+},
+{
+    "model": "core.profileimage",
+    "pk": 5,
+    "fields": {
+        "avatar": "profile_pics/default.jpg",
+        "user": [
+            "java_guru"
+        ],
+        "bio": "",
+        "is_blocked": false
+    }
+},
+{
+    "model": "core.profileimage",
+    "pk": 6,
+    "fields": {
+        "avatar": "profile_pics/default.jpg",
+        "user": [
+            "web_dev"
+        ],
+        "bio": "",
+        "is_blocked": false
+    }
+}
+]
