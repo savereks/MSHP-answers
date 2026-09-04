@@ -1,18 +1,4 @@
-# Список команд для работы с проектом
-## В первую очередь скачайте зависимости! Так же нужно установить виртуальную среду (venv), если она не установлена.
-
-``pip install -r requirements.txt`` - скачивание зависимостей проекта
-
-``python3 manage.py runserver`` - запуск сервера, а следовательно и сайта
-
-``python3 manage.py test`` - запуск тестирования проекта при помощи Django Test Framework
-
-``python3 manage.py createsuperuser`` - создать администратора в базу данных.
-
-``python3 manage.py migrate`` - применить файлы миграций на базу данных
-
-``python3 manage.py makemigrations`` - создать файлы миграций для базы данных из models.py
-
+# Проект разработан и успешно защищен в качестве выпускной квалификационной работы в Московской Школе Программистов
 # MSHP Answers - Платформа вопросов и ответов
 
 [![Django](https://img.shields.io/badge/Django-5.x-092E20?logo=django)](https://www.djangoproject.com/)
@@ -74,6 +60,10 @@
 - Лайки и дизлайки для ответов
 - Изменение и отмена голоса
 
+### Автоматическая документация проекта
+
+[Открыть документацию](docs/_build/html/index.html)
+
 ## 🚀 Установка и запуск
 
 ### Предварительные требования
@@ -82,12 +72,23 @@
 - pip (менеджер пакетов Python)
 - Git (опционально)
 
-### Тесты 
-
-[![coverage report](https://gitlab.informatics.ru/2025-2026/hse/s104m/mshp-answers/badges/main/coverage.svg)](https://gitlab.informatics.ru/2025-2026/hse/s104m/mshp-answers/-/commits/main)
-
 ### 1. Клонирование репозитория
 
 ```bash
-git clone https://github.com/yourusername/mshp-answers.git
+git clone https://github.com/savereks/MSHP-answers.git
 cd mshp-answers
+```
+# Список команд для работы с проектом
+## В первую очередь скачайте зависимости! Так же нужно установить виртуальную среду (venv), если она не установлена.
+
+``pip install -r requirements.txt`` - скачивание зависимостей проекта
+
+``python3 manage.py runserver`` - запуск сервера, а следовательно и сайта
+
+``python3 manage.py test`` - запуск тестирования проекта при помощи Django Test Framework
+
+``python3 manage.py createsuperuser`` - создать администратора в базу данных.
+
+``python3 manage.py migrate`` - применить файлы миграций на базу данных
+
+``python3 manage.py makemigrations`` - создать файлы миграций для базы данных из models.py
